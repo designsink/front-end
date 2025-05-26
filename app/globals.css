@@ -1,10 +1,46 @@
+@font-face {
+  font-family: 'Spoqa Han Sans Neo';
+  font-style: normal;
+  font-weight: 100;
+  src: url('/fonts/SpoqaHanSansNeo-Thin.otf') format('opentype');
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Spoqa Han Sans Neo';
+  font-style: normal;
+  font-weight: 300;
+  src: url('/fonts/SpoqaHanSansNeo-Light.otf') format('opentype');
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Spoqa Han Sans Neo';
+  font-style: normal;
+  font-weight: 400;
+  src: url('/fonts/SpoqaHanSansNeo-Regular.otf') format('opentype');
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Spoqa Han Sans Neo';
+  font-style: normal;
+  font-weight: 500;
+  src: url('/fonts/SpoqaHanSansNeo-Medium.otf') format('opentype');
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Spoqa Han Sans Neo';
+  font-style: normal;
+  font-weight: 700;
+  src: url('/fonts/SpoqaHanSansNeo-Bold.otf') format('opentype');
+  font-display: swap;
+}
+
+body {
+  font-family: 'Spoqa Han Sans Neo', Arial, Helvetica, sans-serif;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-body {
-  font-family: Arial, Helvetica, sans-serif;
-}
 
 @layer utilities {
   .text-balance {
