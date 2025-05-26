@@ -24,7 +24,7 @@ export default function Home() {
       <HeroSection />
       <CategorySection categories={categories} />
       <FeatureSection />
-      <ContactForm />
+      {/* <ContactForm /> */}
       <Footer />
     </div>
   )
