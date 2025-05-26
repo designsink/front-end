@@ -50,7 +50,7 @@ export function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
         >
-          <Button size="lg" className="bg-primary hover:bg-primary/90 text-white">
+          <Button size="xl" className="bg-primary hover:bg-primary/90 text-white text-lg">
             제품 보기
           </Button>
         </motion.div>
