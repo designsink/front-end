@@ -17,7 +17,7 @@ export function HeroSection() {
   const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [1, 0.8, 0])
 
   return (
-    <section ref={heroRef} className="relative h-screen flex items-center justify-center overflow-hidden">
+    <section ref={heroRef} className="relative h-[400px] flex items-center justify-center overflow-hidden mt-16">
       <motion.div style={{ y, opacity }} className="absolute inset-0 z-0">
         <Image
           src="/placeholder.svg?height=1080&width=1920"
@@ -54,9 +54,6 @@ export function HeroSection() {
             제품 보기
           </Button>
         </motion.div>
-      </div>
-      <div className="absolute bottom-10 mx-auto z-20 animate-bounce">
-        <ChevronRight size={30} className="text-white rotate-90" />
       </div>
     </section>
   )
