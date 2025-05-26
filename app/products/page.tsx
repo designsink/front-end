@@ -147,7 +147,7 @@ export default function ProductsPage() {
       {/* 제품 그리드 */}
       <section className="py-12">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-1 gap-8">
             {filteredProducts.map((product, index) => (
               <motion.div
                 key={product.id}
@@ -156,22 +156,13 @@ export default function ProductsPage() {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300"
               >
-                <div className="relative h-64 overflow-hidden">
+                <div className="relative x-[1100] h-[825px] overflow-hidden">
                   <Image
                     src={product.image || "/placeholder.svg"}
                     alt={product.title}
                     fill
                     className="object-cover transition-transform duration-500 hover:scale-110"
                   />
-                </div>
-                <div className="p-6">
-                  <div className="text-sm text-primary font-medium mb-2">{product.category}</div>
-                  <h3 className="text-xl font-bold mb-2">{product.title}</h3>
-                  <p className="text-gray-600 mb-4">{product.description}</p>
-                  <div className="flex justify-between items-center">
-                    <span className="text-2xl font-bold text-primary">{product.price}</span>
-                    <Button size="sm">문의하기</Button>
-                  </div>
                 </div>
               </motion.div>
             ))}
