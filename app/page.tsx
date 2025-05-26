@@ -8,6 +8,8 @@ import { FeatureSection } from "@/components/feature-section"
 import { ContactForm } from "@/components/contact-form"
 import { Footer } from "@/components/footer"
 import { categories } from "@/data/site-data"
+import DirectionsPage from "@/components/direction-page"
+import { redirect } from "next/navigation"
 
 export default function Home() {
   const [mounted, setMounted] = useState(false)
@@ -16,6 +18,15 @@ export default function Home() {
     setMounted(true)
   }, [])
 
+  useEffect(() => {
+    if (mounted && window.location.hash) {
+      const el = document.querySelector(window.location.hash)
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth" })
+      }
+    }
+  }, [mounted])
+
   if (!mounted) return null
 
   return (
@@ -23,7 +34,10 @@ export default function Home() {
       <Header />
       <HeroSection />
       <CategorySection categories={categories} />
-      <FeatureSection />
+      <div id="directions">
+        <DirectionsPage />
+      </div>
+      {/* <FeatureSection /> */}
       {/* <ContactForm /> */}
       <Footer />
     </div>
