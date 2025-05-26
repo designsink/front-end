@@ -24,12 +24,12 @@ export function Header() {
             <Link href="/products" className="hover:text-primary transition-colors">
               제품
             </Link>
-            <Link href="/about" className="hover:text-primary transition-colors">
+            {/* <Link href="/about" className="hover:text-primary transition-colors">
               소개
-            </Link>
-            <Link href="/contact" className="hover:text-primary transition-colors">
+            </Link> */}
+            {/* <Link href="/contact" className="hover:text-primary transition-colors">
               문의
-            </Link>
+            </Link> */}
           </nav>
           <button onClick={() => setMobileMenuOpen(true)} className="md:hidden text-gray-800">
             <Menu size={24} />
