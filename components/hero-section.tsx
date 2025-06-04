@@ -17,7 +17,7 @@ export function HeroSection() {
   const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [1, 0.8, 0])
 
   return (
-    <section ref={heroRef} className="relative h-[400px] flex items-center justify-center overflow-hidden mt-16">
+    <section ref={heroRef} className="relative h-[550px] flex items-center justify-center overflow-hidden mt-20">
       <motion.div style={{ y, opacity }} className="absolute inset-0 z-0">
         <Image
           src="/placeholder.svg?height=1080&width=1920"
@@ -26,14 +26,14 @@ export function HeroSection() {
           priority
           className="object-cover"
         />
-      </motion.div>
+      </motion.div >
       <div className="absolute inset-0 bg-black/30 z-10" />
       <div className="container mx-auto px-4 relative z-20 text-white text-center">
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-4xl md:text-6xl font-bold mb-6"
+          className="text-4xl md:text-6xl font-bold my-6"
         >
           당신의 공간에 완벽한 가구
         </motion.h1>
@@ -49,10 +49,12 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
+          className="flex justify-center items-center text-xl md:text-3xl mb-8 mx-auto"
         >
-          <Button size="xl" className="bg-primary hover:bg-primary/90 text-white text-lg">
-            제품 보기
-          </Button>
+          <div className="mt-10">
+            <p>대구광역시 동구 혁명로463</p>
+            <p className="mt-5">010-2677-0170</p>
+          </div>
         </motion.div>
       </div>
     </section>
