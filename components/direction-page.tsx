@@ -81,14 +81,14 @@ export default function DirectionsPage() {
         </div>
 
         {/* Floating Action Button */}
-        <div className="fixed bottom-8 right-8">
+        {/* <div className="fixed bottom-8 right-8">
           <Button size="icon" className="w-12 h-12 rounded-full bg-gray-600 hover:bg-gray-700 shadow-lg">
             <MapPin className="w-6 h-6" />
           </Button>
-        </div>
+        </div> */}
 
         {/* TOP Button */}
-        <div className="fixed bottom-24 right-8">
+        {/* <div className="fixed bottom-24 right-8">
           <Button
             variant="outline"
             size="sm"
@@ -97,7 +97,7 @@ export default function DirectionsPage() {
           >
             TOP
           </Button>
-        </div>
+        </div> */}
       </div>
     </div>
   )
