@@ -47,6 +47,9 @@ jobs:
         script: |
           # Docker 이미지 로드
           docker load < /tmp/nextjs-app.tar
+
+          # 태깅
+          docker tag nextjs-app:latest dsink-front:latest
           
           # 기존 컨테이너 중지 및 제거
           docker stop dsink-front || true
