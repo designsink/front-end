@@ -62,7 +62,7 @@ jobs:
             -v /etc/letsencrypt:/etc/letsencrypt:ro \
             -v /var/log/nginx-docker:/var/log/nginx \
             --restart unless-stopped \
-            nextjs-app:latest
+            dsink-front:latest
           
           # 임시 파일 정리
           rm -f /tmp/nextjs-app.tar
