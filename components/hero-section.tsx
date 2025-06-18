@@ -52,7 +52,7 @@ export function HeroSection() {
           className="flex justify-center items-center text-xl md:text-3xl mb-8 mx-auto"
         >
           <div className="mt-10">
-            <p>대구광역시 동구 혁명로463</p>
+            <p>대구광역시 동구 화랑로 463</p>
             <p className="mt-5">010-2677-0170</p>
           </div>
         </motion.div>
