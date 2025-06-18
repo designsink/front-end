@@ -46,10 +46,7 @@ jobs:
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
           # Docker 이미지 로드
-          docker load < /tmp/nextjs-app.tar
-
-          # 태깅
-          docker tag nextjs-app:latest dsink-front:latest
+          docker load < /tmp/dsink-front.tar
           
           # 기존 컨테이너 중지 및 제거
           docker stop dsink-front || true
@@ -69,6 +66,7 @@ jobs:
           
           # 임시 파일 정리
           rm -f /tmp/nextjs-app.tar
+          rm -f /tmp/dsink-front.tar
           
           # 오래된 이미지 정리
           docker image prune -f
