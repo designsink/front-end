@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+import { useRef, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -10,12 +11,46 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Shield, AlertTriangle, ArrowLeft } from "lucide-react"
 
 export default function AdminPage() {
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault()
-        // 로그인 로직 구현
-        console.log("관리자 로그인 시도")
-    }
+    const emailRef = useRef<HTMLInputElement>(null)
+    const passwordRef = useRef<HTMLInputElement>(null)
+    const [error, setError] = useState<string | null>(null)
 
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+        setError(null)
+        const email = emailRef.current?.value
+        const password = passwordRef.current?.value
+        if (!email || !password) {
+            setError("이메일과 비밀번호를 입력하세요.")
+            return
+        }
+        try {
+            const response = await fetch("https://jaemoon99.site/api/users/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ email, password }),
+                credentials: "include", // 필요시 쿠키도 함께 보냄
+            })
+            console.log("response status:", response.status)
+            const text = await response.text()
+            console.log("raw response text:", text)
+            const data = JSON.parse(text)
+            const token = data.accessToken
+            if (token) {
+                localStorage.setItem("accessToken", "Bearer " + token)
+                localStorage.setItem("isLoggedIn", "true")
+                window.location.href = "/"
+            } else {
+                setError("토큰이 응답에 없습니다. 관리자에게 문의하세요.")
+            }
+        } catch (err) {
+            setError("로그인 중 오류가 발생했습니다.")
+            console.error(err)
+        }
+    }
+    
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 relative">
         <Button
@@ -59,6 +94,7 @@ export default function AdminPage() {
                     placeholder="admin@example.com"
                     required
                     className="w-full h-12"
+                    ref={emailRef}
                     />
                 </div>
 
@@ -73,12 +109,14 @@ export default function AdminPage() {
                     placeholder="관리자 비밀번호를 입력하세요"
                     required
                     className="w-full h-12"
+                    ref={passwordRef}
                     />
                 </div>
 
                 <Button type="submit" className="w-full h-12 text-lg">
                     관리자 로그인
                 </Button>
+                {error && <div className="text-red-500 text-center mt-2">{error}</div>}
                 </form>
 
                 <div className="mt-6 text-center">

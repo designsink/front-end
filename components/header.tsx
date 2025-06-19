@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Menu } from "lucide-react"
 import { MobileMenu } from "./mobile-menu"
@@ -8,6 +8,19 @@ import Image from "next/image"
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+
+  useEffect(() => {
+    // 로그인 상태 확인 (localStorage)
+    setIsLoggedIn(typeof window !== 'undefined' && localStorage.getItem('isLoggedIn') === 'true')
+  }, [])
+
+  const handleLogout = () => {
+    localStorage.removeItem('isLoggedIn')
+    localStorage.removeItem('accessToken')
+    setIsLoggedIn(false)
+    window.location.href = "/" // 로그아웃 후 홈으로 이동
+  }
 
   return (
     <>
@@ -35,9 +48,15 @@ export function Header() {
             <Link href="/#directions" className="hover:text-primary transition-colors">
               오시는길
             </Link>
-            <Link href="/login" className="hover:text-primary transition-colors">
-              로그인
-            </Link>
+            {isLoggedIn ? (
+              <button onClick={handleLogout} className="hover:text-primary transition-colors bg-transparent border-none cursor-pointer">
+                로그아웃
+              </button>
+            ) : (
+              <Link href="/login" className="hover:text-primary transition-colors">
+                로그인
+              </Link>
+            )}
             {/* <Link href="/about" className="hover:text-primary transition-colors">
               소개
             </Link> */}
