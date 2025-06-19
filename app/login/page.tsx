@@ -17,6 +17,7 @@ export default function AdminPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+        console.log("handleSubmit 실행됨")
         setError(null)
         const email = emailRef.current?.value
         const password = passwordRef.current?.value
