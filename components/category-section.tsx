@@ -16,6 +16,14 @@ interface CategorySectionProps {
   categories: Category[]
 }
 
+const categoryMap: { [key: string]: string } = {
+  "전체": "",
+  "씽크대": "SINK",
+  "냉장고장": "FRIDGE_CABINET",
+  "붙박이장": "BUILT_IN_CLOSET",
+  "맞춤가구": "CUSTOM_FURNITURE",
+}
+
 export function CategorySection({ categories }: CategorySectionProps) {
   return (
     <section className="py-20 bg-gray-50">
@@ -46,7 +54,7 @@ export function CategorySection({ categories }: CategorySectionProps) {
                 <h3 className="text-xl font-bold mb-2">{category.title}</h3>
                 <p className="text-gray-600 mb-4">{category.description}</p>
                 <Link
-                  href={`/products?category=${category.title}`}
+                  href={`/products?category=${categoryMap[category.title] ?? ""}`}
                   className="text-primary font-medium flex items-center"
                 >
                   자세히 보기 <ChevronRight size={16} className="ml-1" />
