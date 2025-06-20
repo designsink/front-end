@@ -46,9 +46,15 @@ export function Header() {
             <Link href="/products" className="hover:text-primary transition-colors">
               제품
             </Link>
-            <Link href="/#directions" className="hover:text-primary transition-colors">
-              오시는길
-            </Link>
+            {isLoggedIn ? (
+              <Link href="/mypage" className="hover:text-primary transition-colors">
+                마이페이지
+              </Link>
+            ) : (
+              <Link href="/#directions" className="hover:text-primary transition-colors">
+                오시는길
+              </Link>
+            )}
             {isLoggedIn ? (
               <button onClick={handleLogout} className="hover:text-primary transition-colors bg-transparent border-none cursor-pointer">
                 로그아웃
