@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Skeleton } from "@/components/ui/skeleton"
+import { ProductLightbox } from "@/components/product-lightbox"
 
 const categories = ["전체", "씽크대", "냉장고장", "붙박이장", "맞춤가구"]
 const categoryMap: { [key: string]: string } = {
@@ -27,13 +28,14 @@ export default function ProductsPage() {
   const [selectedCategory, setSelectedCategory] = useState("전체")
   const [products, setProducts] = useState<Product[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null)
   const searchParams = useSearchParams()
 
   useEffect(() => {
     const categoryParam = searchParams.get("category")
-    const validCategory = categories.find(c => categoryMap[c] === categoryParam)
-    if (validCategory) {
-      setSelectedCategory(validCategory)
+    const categoryName = Object.keys(categoryMap).find(key => categoryMap[key] === categoryParam)
+    if (categoryName) {
+      setSelectedCategory(categoryName)
     }
   }, [searchParams])
 
@@ -121,14 +123,17 @@ export default function ProductsPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300"
+                  className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer"
+                  onClick={() => setSelectedImageIndex(index)}
                 >
                   <div className="relative x-[1100] h-[825px] overflow-hidden">
                     <Image
                       src={`https://jaemoon99.site/images/${product.path}`}
                       alt={`제품 이미지 ${product.productId}`}
                       fill
-                      className="object-cover transition-transform duration-500 hover:scale-110"
+                      className="object-cover transition-transform duration-500 group-hover:scale-110"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      priority={index < 3}
                     />
                   </div>
                 </motion.div>
@@ -141,6 +146,15 @@ export default function ProductsPage() {
           )}
         </div>
       </section>
+
+      {selectedImageIndex !== null && (
+        <ProductLightbox
+          products={products}
+          startIndex={selectedImageIndex}
+          onClose={() => setSelectedImageIndex(null)}
+          categoryName={selectedCategory}
+        />
+      )}
 
       <Footer />
     </div>
