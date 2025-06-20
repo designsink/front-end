@@ -56,6 +56,27 @@ export function ProductLightbox({ products, startIndex, onClose, categoryName }:
   const currentProduct = products[currentIndex]
   const imageUrl = `https://jaemoon99.site/images/${currentProduct.path}`
 
+  const handleOpenOriginalImage = () => {
+    const img = new window.Image()
+    img.onload = () => {
+      const screenWidth = window.screen.width
+      const screenHeight = window.screen.height
+      const imgWidth = img.naturalWidth
+      const imgHeight = img.naturalHeight
+
+      // 이미지가 화면보다 크면 화면 크기에 맞추고, 아니면 이미지 크기에 맞춤
+      const popupWidth = Math.min(imgWidth, screenWidth * 0.9)
+      const popupHeight = Math.min(imgHeight, screenHeight * 0.9)
+
+      const left = (screenWidth - popupWidth) / 2
+      const top = (screenHeight - popupHeight) / 2
+
+      const features = `width=${popupWidth},height=${popupHeight},left=${left},top=${top},resizable=yes,scrollbars=yes`
+      window.open(imageUrl, 'originalImage', features)
+    }
+    img.src = imageUrl
+  }
+
   return (
     <Dialog open={true} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="p-0 m-0 bg-white max-w-full w-full h-full border-none flex flex-col items-center justify-between">
@@ -65,7 +86,7 @@ export function ProductLightbox({ products, startIndex, onClose, categoryName }:
             <Button
               variant="ghost"
               className="text-gray-600 hover:text-black mr-2"
-              onClick={() => window.open(imageUrl, '_blank')}
+              onClick={handleOpenOriginalImage}
             >
               <ExternalLink className="mr-2 h-4 w-4" />
               원본보기
