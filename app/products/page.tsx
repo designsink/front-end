@@ -7,95 +7,57 @@ import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
+import { Skeleton } from "@/components/ui/skeleton"
+import { ProductLightbox } from "@/components/product-lightbox"
 
 const categories = ["전체", "씽크대", "냉장고장", "붙박이장", "맞춤가구"]
+const categoryMap: { [key: string]: string } = {
+  "전체": "",
+  "씽크대": "SINK",
+  "냉장고장": "FRIDGE_CABINET",
+  "붙박이장": "BUILT_IN_CLOSET",
+  "맞춤가구": "CUSTOM_FURNITURE",
+}
 
-// 샘플 제품 데이터
-const allProducts = [
-  {
-    id: 1,
-    title: "모던 씽크대 A-101",
-    price: "₩1,200,000",
-    category: "씽크대",
-    image: "/placeholder.svg?height=300&width=300&text=씽크대1",
-    description: "고급스러운 디자인의 모던 씽크대",
-  },
-  {
-    id: 2,
-    title: "클래식 씽크대 A-102",
-    price: "₩980,000",
-    category: "씽크대",
-    image: "/placeholder.svg?height=300&width=300&text=씽크대2",
-    description: "전통적인 스타일의 클래식 씽크대",
-  },
-  {
-    id: 3,
-    title: "프리미엄 냉장고장 B-201",
-    price: "₩1,800,000",
-    category: "냉장고장",
-    image: "/placeholder.svg?height=300&width=300&text=냉장고장1",
-    description: "공간 활용도가 뛰어난 냉장고장",
-  },
-  {
-    id: 4,
-    title: "스마트 냉장고장 B-202",
-    price: "₩2,100,000",
-    category: "냉장고장",
-    image: "/placeholder.svg?height=300&width=300&text=냉장고장2",
-    description: "최신 기술이 적용된 스마트 냉장고장",
-  },
-  {
-    id: 5,
-    title: "프리미엄 붙박이장 C-301",
-    price: "₩2,500,000",
-    category: "붙박이장",
-    image: "/placeholder.svg?height=300&width=300&text=붙박이장1",
-    description: "맞춤형 프리미엄 붙박이장",
-  },
-  {
-    id: 6,
-    title: "모던 붙박이장 C-302",
-    price: "₩2,200,000",
-    category: "붙박이장",
-    image: "/placeholder.svg?height=300&width=300&text=붙박이장2",
-    description: "현대적 디자인의 붙박이장",
-  },
-  {
-    id: 7,
-    title: "맞춤 서재 가구 D-401",
-    price: "₩1,500,000",
-    category: "맞춤가구",
-    image: "/placeholder.svg?height=300&width=300&text=맞춤가구1",
-    description: "개인 맞춤형 서재 가구",
-  },
-  {
-    id: 8,
-    title: "맞춤 침실 가구 D-402",
-    price: "₩3,200,000",
-    category: "맞춤가구",
-    image: "/placeholder.svg?height=300&width=300&text=맞춤가구2",
-    description: "침실 전용 맞춤 가구 세트",
-  },
-]
+interface Product {
+  productId: number
+  path: string
+}
 
 export default function ProductsPage() {
   const [selectedCategory, setSelectedCategory] = useState("전체")
-  const [filteredProducts, setFilteredProducts] = useState(allProducts)
+  const [products, setProducts] = useState<Product[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null)
   const searchParams = useSearchParams()
 
   useEffect(() => {
     const categoryParam = searchParams.get("category")
-    if (categoryParam && categories.includes(categoryParam)) {
-      setSelectedCategory(categoryParam)
+    const categoryName = Object.keys(categoryMap).find(key => categoryMap[key] === categoryParam)
+    if (categoryName) {
+      setSelectedCategory(categoryName)
     }
   }, [searchParams])
 
   useEffect(() => {
-    if (selectedCategory === "전체") {
-      setFilteredProducts(allProducts)
-    } else {
-      setFilteredProducts(allProducts.filter((product) => product.category === selectedCategory))
+    const fetchProducts = async () => {
+      setIsLoading(true)
+      const apiCategory = categoryMap[selectedCategory]
+      const url = `https://jaemoon99.site/api/products?category=${apiCategory}`
+      
+      try {
+        const res = await fetch(url)
+        const data = await res.json()
+        setProducts(data)
+      } catch (error) {
+        console.error("Failed to fetch products:", error)
+        setProducts([])
+      } finally {
+        setIsLoading(false)
+      }
     }
+
+    fetchProducts()
   }, [selectedCategory])
 
   return (
@@ -147,34 +109,52 @@ export default function ProductsPage() {
       {/* 제품 그리드 */}
       <section className="py-12">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-1 gap-8">
-            {filteredProducts.map((product, index) => (
-              <motion.div
-                key={product.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300"
-              >
-                <div className="relative x-[1100] h-[825px] overflow-hidden">
-                  <Image
-                    src={product.image || "/placeholder.svg"}
-                    alt={product.title}
-                    fill
-                    className="object-cover transition-transform duration-500 hover:scale-110"
-                  />
-                </div>
-              </motion.div>
-            ))}
-          </div>
-
-          {filteredProducts.length === 0 && (
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-1 gap-8">
+              {[...Array(3)].map((_, i) => (
+                <Skeleton key={i} className="h-[825px] w-full rounded-lg" />
+              ))}
+            </div>
+          ) : products.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-1 gap-8">
+              {products.map((product, index) => (
+                <motion.div
+                  key={product.productId}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer"
+                  onClick={() => setSelectedImageIndex(index)}
+                >
+                  <div className="relative x-[1100] h-[825px] overflow-hidden">
+                    <Image
+                      src={`https://jaemoon99.site/images/${product.path}`}
+                      alt={`제품 이미지 ${product.productId}`}
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-110"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      priority={index < 3}
+                    />
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          ) : (
             <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">해당 카테고리에 제품이 없습니다.</p>
+              <p className="text-gray-500 text-lg">아직 등록된 사진이 없습니다.</p>
             </div>
           )}
         </div>
       </section>
+
+      {selectedImageIndex !== null && (
+        <ProductLightbox
+          products={products}
+          startIndex={selectedImageIndex}
+          onClose={() => setSelectedImageIndex(null)}
+          categoryName={selectedCategory}
+        />
+      )}
 
       <Footer />
     </div>
