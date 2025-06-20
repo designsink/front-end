@@ -21,20 +21,48 @@ export default function ProductListWithDelete() {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
+  const [message, setMessage] = useState<string | null>(null)
 
   const getCategoryName = (value: string) => {
     const found = CATEGORY_OPTIONS.find((c) => c.value === value)
     return found ? found.label : "전체"
   }
 
-  useEffect(() => {
+  const fetchProducts = () => {
     setLoading(true)
     fetch(`https://jaemoon99.site/api/products?category=${selectedCategory}`)
       .then(res => res.json())
       .then(data => setProducts(data))
       .catch(() => setProducts([]))
       .finally(() => setLoading(false))
+  }
+
+  useEffect(() => {
+    fetchProducts()
   }, [selectedCategory])
+
+  const handleDelete = async (productId: number) => {
+    setMessage(null)
+    const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
+    if (!accessToken) {
+      setMessage("로그인이 필요합니다.")
+      return
+    }
+    try {
+      const res = await fetch(`https://jaemoon99.site/api/products/${productId}`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": accessToken,
+        },
+        credentials: "include",
+      })
+      if (!res.ok) throw new Error("삭제 실패")
+      setMessage("삭제되었습니다.")
+      fetchProducts()
+    } catch (err) {
+      setMessage("상품 삭제 실패")
+    }
+  }
 
   return (
     <div>
@@ -68,7 +96,7 @@ export default function ProductListWithDelete() {
               />
               <button
                 className="absolute top-2 right-2 bg-red-500 text-white rounded px-2 py-1 text-xs opacity-80 group-hover:opacity-100 transition"
-                // onClick={() => handleDelete(product.productId)}
+                onClick={() => handleDelete(product.productId)}
               >
                 삭제
               </button>
@@ -76,6 +104,7 @@ export default function ProductListWithDelete() {
           ))}
         </div>
       )}
+      {message && <div className={`text-center mt-4 ${message.includes("성공") || message.includes("삭제되었습니다") ? "text-green-600" : "text-red-600"}`}>{message}</div>}
       {lightboxIndex !== null && (
         <ProductLightbox
           products={products}
