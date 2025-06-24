@@ -30,7 +30,7 @@ export default function ProductUploadForm() {
     formData.append("file", file);
     const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
     try {
-      const res = await fetch("https://jaemoon99.site/api/products", {
+      const res = await fetch("https://dsink.kr/api/products", {
         method: "POST",
         headers: {
           ...(accessToken ? { "Authorization": accessToken } : {}),

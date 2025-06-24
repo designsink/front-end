@@ -26,7 +26,7 @@ export default function AdminPage() {
             return
         }
         try {
-            const response = await fetch("https://jaemoon99.site/api/users/login", {
+            const response = await fetch("https://dsink.kr/api/users/login", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

@@ -26,7 +26,7 @@ export default function MainPageEditForm() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetch("https://jaemoon99.site/api/main-page/1")
+    fetch("https://dsink.kr/api/main-page/1")
       .then(res => res.json())
       .then(data => {
         setForm({
@@ -63,7 +63,7 @@ export default function MainPageEditForm() {
     setSuccess(false)
     const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
     try {
-      const res = await fetch("https://jaemoon99.site/api/main-page/1", {
+      const res = await fetch("https://dsink.kr/api/main-page/1", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

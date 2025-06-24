@@ -30,7 +30,7 @@ export default function ProductListWithDelete() {
 
   const fetchProducts = () => {
     setLoading(true)
-    fetch(`https://jaemoon99.site/api/products?category=${selectedCategory}`)
+    fetch(`https://dsink.kr/api/products?category=${selectedCategory}`)
       .then(res => res.json())
       .then(data => setProducts(data))
       .catch(() => setProducts([]))
@@ -49,7 +49,7 @@ export default function ProductListWithDelete() {
       return
     }
     try {
-      const res = await fetch(`https://jaemoon99.site/api/products/${productId}`, {
+      const res = await fetch(`https://dsink.kr/api/products/${productId}`, {
         method: "DELETE",
         headers: {
           "Authorization": accessToken,
@@ -89,7 +89,7 @@ export default function ProductListWithDelete() {
           {products.map((product, idx) => (
             <div key={product.productId} className="relative group bg-white rounded-lg shadow p-2">
               <img
-                src={`https://jaemoon99.site/images/${product.path}`}
+                src={`https://dsink.kr/images/${product.path}`}
                 alt={`상품 이미지 ${product.productId}`}
                 className="w-full h-48 object-cover rounded cursor-pointer"
                 onClick={() => setLightboxIndex(idx)}

@@ -43,7 +43,7 @@ export default function ProductsPage() {
     const fetchProducts = async () => {
       setIsLoading(true)
       const apiCategory = categoryMap[selectedCategory]
-      const url = `https://jaemoon99.site/api/products?category=${apiCategory}`
+      const url = `https://dsink.kr/api/products?category=${apiCategory}`
       
       try {
         const res = await fetch(url)
@@ -128,7 +128,7 @@ export default function ProductsPage() {
                 >
                   <div className="relative x-[1100] h-[825px] overflow-hidden">
                     <Image
-                      src={`https://jaemoon99.site/images/${product.path}`}
+                      src={`https://dsink.kr/images/${product.path}`}
                       alt={`제품 이미지 ${product.productId}`}
                       fill
                       className="object-cover transition-transform duration-500 group-hover:scale-110"
