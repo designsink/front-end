@@ -1,10 +1,14 @@
 # Build stage
 FROM node:18-alpine AS builder
 WORKDIR /app
+
+ARG NEXT_PUBLIC_NAVER_MAP_KEY
+ENV NEXT_PUBLIC_NAVER_MAP_KEY=${NEXT_PUBLIC_NAVER_MAP_KEY}
+
 COPY package*.json ./
 RUN npm ci
 COPY . .
-RUN npm run build
+RUN npm run build && npm run export
 
 # Production stage - Nginx로 정적 파일 서빙
 FROM nginx:alpine
