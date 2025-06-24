@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { MapPin, Phone, Building, Mail, Plus, Minus, Navigation } from "lucide-react"
+import { NaverMap } from "./naver-map"
 
 interface DirectionsPageProps {
   address?: string
@@ -24,87 +24,6 @@ export default function DirectionsPage({
   email = "a529746@naver.com",
   storeName = "디자인씽크",
 }: DirectionsPageProps) {
-  const [zoomLevel, setZoomLevel] = useState(15)
-  const mapRef = useRef<HTMLDivElement>(null)
-  const kakaoMapRef = useRef<any>(null)
-
-  // 카카오맵 초기화
-  useEffect(() => {
-    const initializeMap = () => {
-      const kakao = (window as any).kakao;
-      if (kakao && kakao.maps && mapRef.current) {
-        kakao.maps.load(() => {
-          const container = mapRef.current;
-          if (!container) return; // 추가 안전장치
-
-          const options = {
-            center: new kakao.maps.LatLng(35.8714, 128.6014), // 대구 동구 좌표
-            level: zoomLevel
-          }
-
-          const map = new kakao.maps.Map(container, options)
-          kakaoMapRef.current = map
-
-          // 마커 추가
-          const markerPosition = new kakao.maps.LatLng(35.8714, 128.6014)
-          const marker = new kakao.maps.Marker({
-            position: markerPosition
-          })
-          marker.setMap(map)
-
-          // 인포윈도우 추가
-          const infoWindow = new kakao.maps.InfoWindow({
-            content: '<div style="padding:10px;font-size:14px;">디자인씽크<br/>대구광역시 동구 화랑로 463</div>'
-          })
-          infoWindow.open(map, marker)
-        })
-      }
-    }
-
-    // SDK 로드 확인
-    const checkKakao = setInterval(() => {
-      if ((window as any).kakao && (window as any).kakao.maps) {
-        initializeMap()
-        clearInterval(checkKakao)
-      }
-    }, 100)
-
-    return () => clearInterval(checkKakao)
-  }, [zoomLevel])
-
-  const handleZoomIn = () => {
-    setZoomLevel((prev) => {
-      const newLevel = Math.max(prev - 1, 1) // 카카오맵은 숫자가 작을수록 확대
-      if (kakaoMapRef.current) {
-        kakaoMapRef.current.setLevel(newLevel)
-      }
-      return newLevel
-    })
-  }
-
-  const handleZoomOut = () => {
-    setZoomLevel((prev) => {
-      const newLevel = Math.min(prev + 1, 14) // 카카오맵은 숫자가 클수록 축소
-      if (kakaoMapRef.current) {
-        kakaoMapRef.current.setLevel(newLevel)
-      }
-      return newLevel
-    })
-  }
-
-  const handleGetDirections = () => {
-    // 카카오맵 길찾기 URL로 이동
-    const url = `https://map.kakao.com/link/to/디자인씽크,35.8758147,128.6747199`
-    window.open(url, '_blank')
-  }
-
-  //35.8758147!4d
-  const handleViewInMap = () => {
-    // 카카오맵에서 보기
-    const url = `https://map.kakao.com/link/map/디자인씽크,35.8758147,128.6747199`
-    window.open(url, '_blank')
-  }
-
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-7xl mx-auto px-4 pt-8 pb-16">
@@ -113,51 +32,34 @@ export default function DirectionsPage({
           <h1 className="text-3xl font-bold text-gray-900 my-6">오시는길</h1>
         </div>
 
-        {/* Map Section */}
+        {/* Map Section (네이버 지도 삽입) */}
         <div className="mb-8">
           <Card className="overflow-hidden">
             <CardContent className="p-0">
-              <div className="relative h-[600px] bg-gray-100">
-                {/* 카카오맵 컨테이너 */}
-                <div ref={mapRef} className="w-full h-full"></div>
-
-                {/* 줌 컨트롤 버튼 */}
-                <div className="absolute top-4 right-4 flex flex-col space-y-2">
-                  <Button
-                      size="sm"
-                      variant="outline"
-                      className="bg-white shadow-md"
-                      onClick={handleZoomIn}
-                  >
-                    <Plus className="w-4 h-4" />
-                  </Button>
-                  <Button
-                      size="sm"
-                      variant="outline"
-                      className="bg-white shadow-md"
-                      onClick={handleZoomOut}
-                  >
-                    <Minus className="w-4 h-4" />
-                  </Button>
-                </div>
+              <div className="relative h-[600px] bg-gray-100 flex items-center justify-center">
+                <NaverMap markerData={{
+                  dom_id: "dsink",
+                  title: storeName,
+                  lat: 35.8758170,
+                  lng: 128.6746445,
+                }} />
               </div>
             </CardContent>
           </Card>
-
-          {/* Map Action Buttons */}
+          {/* 네이버 지도 액션 버튼 */}
           <div className="flex justify-end space-x-2 mt-4">
             <Button
-                variant="outline"
-                className="bg-gray-500 text-white hover:bg-gray-600"
-                onClick={handleGetDirections}
+              variant="outline"
+              className="border-gray-400 text-gray-800 hover:bg-gray-300"
+              onClick={() => window.open(`https://map.naver.com/p/directions/-/14323996.7609055,4283547.6839002,%EB%94%94%EC%9E%90%EC%9D%B8%EC%8B%B1%ED%81%AC,1127603798,PLACE_POI/-/car?c=13.00,0,0,0,dh`, '_blank')}
             >
               <Navigation className="w-4 h-4 mr-2" />
               길찾기
             </Button>
             <Button
-                variant="outline"
-                className="bg-gray-500 text-white hover:bg-gray-600"
-                onClick={handleViewInMap}
+              variant="outline"
+              className="border-gray-400 text-gray-800 hover:bg-gray-300"
+              onClick={() => window.open(`https://map.naver.com/v5/search/%EB%8C%80%EA%B5%AC%20%ED%99%94%EB%9E%91%EB%A1%9C%20463%20%EB%94%94%EC%9E%90%EC%9D%B8%EC%8B%B1%ED%81%AC`, '_blank')}
             >
               <MapPin className="w-4 h-4 mr-2" />
               지도에서 보기
