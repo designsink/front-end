@@ -29,7 +29,7 @@ jobs:
     - name: Build Docker image
       run: |
         docker build --build-arg NEXT_PUBLIC_NAVER_MAP_KEY=${{secrets.NAVER_MAP_KEY}} -t dsink-front:latest .
-        docker save -o dsink-front:latest > dsink-front.tar
+        docker save dsink-front:latest > dsink-front.tar
         
     - name: Copy Docker image to EC2
       uses: appleboy/scp-action@v0.1.4
