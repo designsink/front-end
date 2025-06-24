@@ -54,7 +54,7 @@ export function ProductLightbox({ products, startIndex, onClose, categoryName }:
   }, [currentIndex])
 
   const currentProduct = products[currentIndex]
-  const imageUrl = `https://jaemoon99.site/images/${currentProduct.path}`
+  const imageUrl = `https://dsink.kr/images/${currentProduct.path}`
 
   const handleOpenOriginalImage = () => {
     const img = new window.Image()
@@ -138,7 +138,7 @@ export function ProductLightbox({ products, startIndex, onClose, categoryName }:
                   }`}
                   onClick={() => setCurrentIndex(index)}
                 >
-                  <Image src={`https://jaemoon99.site/images/${p.path}`} alt={`썸네일 ${p.productId}`} fill className="object-cover" />
+                  <Image src={`https://dsink.kr/images/${p.path}`} alt={`썸네일 ${p.productId}`} fill className="object-cover" />
                 </div>
               ))}
             </div>

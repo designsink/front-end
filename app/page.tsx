@@ -17,7 +17,7 @@ export default function Home() {
 
   useEffect(() => {
     setMounted(true)
-    fetch("https://jaemoon99.site/api/main-page/1")
+    fetch("https://dsink.kr/api/main-page/1")
       .then(res => res.json())
       .then(setMainData)
   }, [])
@@ -44,14 +44,14 @@ export default function Home() {
   // HeroSection용 이미지 배열 (null/빈 값 제거, 도메인 붙이기)
   const heroImages = categoryImages
     .filter(Boolean)
-    .map(img => `https://jaemoon99.site/images/${img}`)
+    .map(img => `https://dsink.kr/images/${img}`)
   const heroImagesProp = heroImages.length > 0 ? heroImages : undefined
 
   // 이미지 경로가 있으면 도메인 붙이기, 없으면 placeholder
   const categoriesWithApiImages = defaultCategories.map((cat, idx) => ({
     ...cat,
     image: categoryImages[idx]
-      ? `https://jaemoon99.site/images/${categoryImages[idx]}`
+      ? `https://dsink.kr/images/${categoryImages[idx]}`
       : "/placeholder.svg",
   }))
 

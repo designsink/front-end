@@ -10,7 +10,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'jaemoon99.site',
+        hostname: 'dsink.kr',
         port: '',
         pathname: '/images/**',
       },
