@@ -8,7 +8,7 @@ ENV NEXT_PUBLIC_NAVER_MAP_KEY=${NEXT_PUBLIC_NAVER_MAP_KEY}
 COPY package*.json ./
 RUN npm ci
 COPY . .
-RUN npm run build && npm run export
+RUN npm run build
 
 # Production stage - Nginx로 정적 파일 서빙
 FROM nginx:alpine
