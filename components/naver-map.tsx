@@ -45,6 +45,14 @@ export function NaverMap({ markerData }: NaverMapProps) {
     setMap(new window.naver.maps.Map(mapEl.current, options))
   }
 
+  // Script 로드(onLoad) 외에도, window.naver가 이미 있으면 직접 initializeMap 호출
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.naver && mapEl.current) {
+      initializeMap()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [markerData])
+
   // 2) map 준비되면, 단일 마커 생성 & 클릭 시 router.push
   useEffect(() => {
     if (!map || !markerData) return
