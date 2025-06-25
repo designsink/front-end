@@ -66,13 +66,12 @@ export default function ProductListWithDelete() {
 
   return (
     <div>
-      <div className="flex items-center gap-4 mb-4">
-        <h3 className="text-xl font-semibold">상품 삭제</h3>
-        <div className="flex gap-2">
+      <div className="flex items-center gap-2 md:gap-4 mb-2 md:mb-4">
+        <div className="flex gap-1 md:gap-2">
           {CATEGORY_OPTIONS.map(cat => (
             <button
               key={cat.value}
-              className={`px-4 py-1 rounded-full border text-sm transition-all ${selectedCategory === cat.value ? "bg-primary text-white border-primary" : "bg-white text-gray-700 border-gray-300 hover:border-primary"}`}
+              className={`px-3 md:px-4 py-1 rounded-full border text-xs md:text-sm transition-all ${selectedCategory === cat.value ? "bg-primary text-white border-primary" : "bg-white text-gray-700 border-gray-300 hover:border-primary"}`}
               onClick={() => setSelectedCategory(cat.value)}
             >
               {cat.label}
