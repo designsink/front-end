@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useImperativeHandle, forwardRef } from "react"
 import { ProductLightbox } from "./product-lightbox"
 
 const CATEGORY_OPTIONS = [
@@ -16,7 +16,7 @@ interface Product {
   path: string
 }
 
-export default function ProductListWithDelete() {
+const ProductListWithDelete = forwardRef(function ProductListWithDelete(props, ref) {
   const [selectedCategory, setSelectedCategory] = useState("")
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
@@ -63,6 +63,10 @@ export default function ProductListWithDelete() {
       setMessage("상품 삭제 실패")
     }
   }
+
+  useImperativeHandle(ref, () => ({
+    refetch: fetchProducts
+  }))
 
   return (
     <div>
@@ -114,4 +118,6 @@ export default function ProductListWithDelete() {
       )}
     </div>
   )
-} 
+})
+
+export default ProductListWithDelete 

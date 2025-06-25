@@ -9,7 +9,7 @@ const CATEGORY_OPTIONS = [
   { label: "맞춤가구", value: "CUSTOM_FURNITURE" },
 ]
 
-export default function ProductUploadForm() {
+export default function ProductUploadForm({ onUploaded }: { onUploaded?: () => void }) {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [file, setFile] = useState<File | null>(null)
   const [message, setMessage] = useState<string | null>(null)
@@ -42,6 +42,7 @@ export default function ProductUploadForm() {
       setMessage("등록되었습니다.");
       setFile(null);
       setSelectedCategories([]);
+      if (onUploaded) onUploaded();
     } catch (err) {
       setMessage("상품 등록 실패");
     }
