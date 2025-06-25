@@ -78,7 +78,7 @@ export default function ProductsPage() {
       <section className="pb-4 bg-white border-b">
         <div className="container mx-auto px-4">
           <div className="flex justify-center">
-            <div className="flex gap-4 overflow-x-auto pb-2">
+            <div className="flex flex-wrap justify-center gap-2 md:gap-4 overflow-x-auto md:overflow-x-visible pb-2">
               {categories.map((category) => (
                 <button
                   key={category}
