@@ -28,10 +28,10 @@ export function CategorySection({ categories }: CategorySectionProps) {
   return (
     <section className="py-20 bg-gray-50">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">제품 카테고리</h2>
+        <div className="text-center mb-8 md:mb-16">
+          <h2 className="text-xl md:text-4xl font-bold mb-2 md:mb-4">제품 카테고리</h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
           {categories.map((category) => (
             <motion.div
               key={category.id}
@@ -42,7 +42,7 @@ export function CategorySection({ categories }: CategorySectionProps) {
               whileHover={{ y: -10 }}
               className="bg-white rounded-lg overflow-hidden shadow-lg group"
             >
-              <div className="relative h-60 overflow-hidden">
+              <div className="relative h-36 md:h-60 overflow-hidden">
                 <Image
                   src={category.image || "/placeholder.svg"}
                   alt={category.title}
@@ -50,12 +50,12 @@ export function CategorySection({ categories }: CategorySectionProps) {
                   className="object-cover transition-transform duration-500 group-hover:scale-110"
                 />
               </div>
-              <div className="p-6">
-                <h3 className="text-xl font-bold mb-2">{category.title}</h3>
-                <p className="text-gray-600 mb-4">{category.description}</p>
+              <div className="p-3 md:p-6">
+                <h3 className="text-base md:text-xl font-bold mb-1 md:mb-2">{category.title}</h3>
+                <p className="text-xs md:text-base text-gray-600 mb-2 md:mb-4">{category.description}</p>
                 <Link
                   href={`/products?category=${categoryMap[category.title] ?? ""}`}
-                  className="text-primary font-medium flex items-center"
+                  className="text-primary font-medium flex items-center text-sm md:text-base"
                 >
                   자세히 보기 <ChevronRight size={16} className="ml-1" />
                 </Link>

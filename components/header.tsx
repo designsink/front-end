@@ -36,7 +36,7 @@ export function Header() {
               width={200}
               height={64}
               priority
-              className="h-14 w-auto my-2"
+              className="h-10 md:h-14 w-auto my-2"
             />
           </Link>
           <nav className="hidden md:flex items-center gap-8">

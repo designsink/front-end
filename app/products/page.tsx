@@ -68,8 +68,8 @@ export default function ProductsPage() {
       <section className="pt-24 pb-6 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center">
-            <h1 className="text-4xl font-bold mb-4">제품</h1>
-            <p className="text-gray-600 max-w-2xl mx-auto">디자인 씽크의 다양한 맞춤형 가구를 만나보세요.</p>
+            <h1 className="text-2xl md:text-4xl font-bold mb-2 md:mb-4">제품</h1>
+            <p className="text-sm md:text-base text-gray-600 max-w-2xl mx-auto">디자인 씽크의 다양한 맞춤형 가구를 만나보세요.</p>
           </div>
         </div>
       </section>
@@ -83,7 +83,7 @@ export default function ProductsPage() {
                 <button
                   key={category}
                   onClick={() => setSelectedCategory(category)}
-                  className={`px-6 py-3 rounded-full border-2 transition-all duration-200 whitespace-nowrap flex items-center gap-2 ${
+                  className={`px-3 md:px-6 py-2 md:py-3 rounded-full border-2 text-sm md:text-base transition-all duration-200 whitespace-nowrap flex items-center gap-1 md:gap-2 ${
                     selectedCategory === category
                       ? "bg-primary border-primary text-white"
                       : "bg-white border-gray-300 text-gray-700 hover:border-primary hover:text-primary"
