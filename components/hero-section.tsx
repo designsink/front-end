@@ -29,7 +29,7 @@ export function HeroSection({ title, description, address, phone, images }: Hero
   const displayImages = validImages.length > 0 ? validImages : ["/placeholder.svg?height=1080&width=1920"]
 
   return (
-    <section ref={heroRef} className="relative h-[550px] flex items-center justify-center overflow-hidden mt-20">
+    <section ref={heroRef} className="relative h-[350px] md:h-[550px] flex items-center justify-center overflow-hidden mt-16 md:mt-20">
       <motion.div style={{ y, opacity }} className="absolute inset-0 z-0">
         <Carousel className="h-full w-full" interval={4000} opts={{ loop: true }}>
           <CarouselContent>
@@ -53,7 +53,7 @@ export function HeroSection({ title, description, address, phone, images }: Hero
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-4xl md:text-6xl font-bold my-6"
+          className="text-2xl md:text-6xl font-bold my-4 md:my-6"
         >
           {title}
         </motion.h1>
@@ -61,7 +61,7 @@ export function HeroSection({ title, description, address, phone, images }: Hero
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="text-xl md:text-2xl mb-8 mx-auto"
+          className="text-base md:text-2xl mb-4 md:mb-8 mx-auto"
         >
           {description}
         </motion.p>
@@ -69,11 +69,11 @@ export function HeroSection({ title, description, address, phone, images }: Hero
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
-          className="flex justify-center items-center text-xl md:text-3xl mb-8 mx-auto"
+          className="flex justify-center items-center text-base md:text-3xl mb-4 md:mb-8 mx-auto"
         >
-          <div className="mt-10">
+          <div className="mt-4 md:mt-10">
             {address && <p>{address}</p>}
-            {phone && <p className="mt-5">{phone}</p>}
+            {phone && <p className="mt-2 md:mt-5">{phone}</p>}
           </div>
         </motion.div>
       </div>
