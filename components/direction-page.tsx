@@ -36,7 +36,7 @@ export default function DirectionsPage({
         <div className="mb-8">
           <Card className="overflow-hidden">
             <CardContent className="p-0">
-              <div className="relative h-[600px] bg-gray-100 flex items-center justify-center">
+              <div className="relative w-full h-[250px] sm:h-[300px] md:h-[400px] lg:h-[600px] bg-gray-100 flex items-center justify-center">
                 <NaverMap markerData={{
                   dom_id: "dsink",
                   title: storeName,
