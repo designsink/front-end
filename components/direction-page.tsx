@@ -68,24 +68,24 @@ export default function DirectionsPage({
         </div>
 
         {/* Company Information */}
-        <div className="flex justify-center w-full text-base md:text-xl">
-          <div className="w-full max-w-3xl mx-auto text-base md:text-xl">
-            <div className="border-b py-3 md:py-6 flex items-start gap-2 md:gap-6">
-              <MapPin className="w-6 h-6 text-gray-500" />
-              <span className="font-medium text-gray-700 w-24 md:w-32 text-left">주소</span>
+        <div className="flex justify-center w-full text-sm md:text-xl">
+          <div className="w-full max-w-3xl mx-auto text-sm md:text-xl">
+            <div className="border-b py-2 md:py-6 flex items-start gap-1 md:gap-6">
+              <MapPin className="w-5 md:w-6 h-5 md:h-6 text-gray-500" />
+              <span className="font-medium text-gray-700 w-20 md:w-32 text-left">주소</span>
               <span className="text-gray-600 text-left">{address}</span>
             </div>
-            <div className="border-b py-3 md:py-6 flex items-start gap-2 md:gap-6">
-              <Phone className="w-6 h-6 text-gray-500" />
-              <span className="font-medium text-gray-700 w-24 md:w-32 text-left">전화번호</span>
+            <div className="border-b py-2 md:py-6 flex items-start gap-1 md:gap-6">
+              <Phone className="w-5 md:w-6 h-5 md:h-6 text-gray-500" />
+              <span className="font-medium text-gray-700 w-20 md:w-32 text-left">전화번호</span>
               <div className="flex flex-col text-gray-600 items-start">
                 <span>{phone}</span>
                 <span>{storePhone}</span>
               </div>
             </div>
-            <div className="border-b py-3 md:py-6 flex items-start gap-2 md:gap-6">
-              <Building className="w-6 h-6 text-gray-500" />
-              <span className="font-medium text-gray-700 w-24 md:w-32 text-left">사업자정보</span>
+            <div className="border-b py-2 md:py-6 flex items-start gap-1 md:gap-6">
+              <Building className="w-5 md:w-6 h-5 md:h-6 text-gray-500" />
+              <span className="font-medium text-gray-700 w-20 md:w-32 text-left">사업자정보</span>
               <div className="grid grid-cols-2 text-gray-600 break-all">
                 <span className="text-left">상호명</span>
                 <span className="text-left">{storeName}</span>
