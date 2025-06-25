@@ -78,7 +78,7 @@ export default function ProductsPage() {
       <section className="pb-4 bg-white border-b">
         <div className="container mx-auto px-4">
           <div className="flex justify-center">
-            <div className="flex gap-4 overflow-x-auto pb-2">
+            <div className="flex flex-wrap justify-center gap-2 md:gap-4 overflow-x-auto md:overflow-x-visible pb-2">
               {categories.map((category) => (
                 <button
                   key={category}
@@ -126,13 +126,13 @@ export default function ProductsPage() {
                   className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer"
                   onClick={() => setSelectedImageIndex(index)}
                 >
-                  <div className="relative x-[1100] h-[825px] overflow-hidden">
+                  <div className="relative w-full aspect-[1100/825] overflow-hidden">
                     <Image
                       src={`https://dsink.kr/images/${product.path}`}
                       alt={`제품 이미지 ${product.productId}`}
                       fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-110"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      className="object-cover"
+                      sizes="100vw"
                       priority={index < 3}
                     />
                   </div>
