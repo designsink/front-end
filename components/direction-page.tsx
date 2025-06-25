@@ -86,7 +86,7 @@ export default function DirectionsPage({
             <div className="border-b py-6 flex items-start gap-6">
               <Building className="w-6 h-6 text-gray-500" />
               <span className="font-medium text-gray-700 w-32 text-left">사업자정보</span>
-              <div className="grid grid-cols-2 text-gray-600">
+              <div className="grid grid-cols-2 text-gray-600 break-all">
                 <span className="text-left">상호명</span>
                 <span className="text-left">{storeName}</span>
                 <span className="text-left">대표자</span>
