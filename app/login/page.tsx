@@ -53,39 +53,29 @@ export default function AdminPage() {
     }
     
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 relative">
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 py-8 px-2 md:px-6 lg:px-8 relative">
         <Button
             variant="ghost"
             onClick={() => window.history.back()}
-            className="absolute top-4 left-4 p-2 rounded-full hover:bg-gray-200"
+            className="absolute top-2 left-2 md:top-4 md:left-4 p-2 rounded-full hover:bg-gray-200"
             aria-label="뒤로가기"
         >
-            <ArrowLeft className="h-6 w-6" />
+            <ArrowLeft className="h-5 w-5 md:h-6 md:w-6" />
         </Button>
-        <div className="max-w-lg w-full space-y-8">
-            {/* 관리자 전용 알림 */}
-            <Alert className="border-amber-200 bg-amber-50">
-            <AlertTriangle className="h-5 w-5 text-amber-600" />
-            <AlertDescription className="text-base text-amber-800">
-                <strong>관리자 전용 페이지입니다.</strong>
-                <br />
-                일반 사용자는 접근할 수 없습니다. 관리자 권한이 있는 계정으로만<br/> 로그인 가능합니다.
-            </AlertDescription>
-            </Alert>
-
+        <div className="max-w-md w-full space-y-6 md:space-y-8">
             <Card>
             <CardHeader className="text-center">
-                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-blue-100">
-                <Shield className="h-8 w-8 text-blue-600" />
+                <div className="mx-auto flex h-12 w-12 md:h-16 md:w-16 items-center justify-center rounded-full bg-blue-100">
+                <Shield className="h-6 w-6 md:h-8 md:w-8 text-blue-600" />
                 </div>
-                <CardTitle className="text-3xl font-bold text-gray-900">관리자 로그인</CardTitle>
-                <CardDescription className="text-lg">관리자 계정으로 로그인하여 시스템에 접근하세요</CardDescription>
+                <CardTitle className="text-base md:text-3xl font-bold text-gray-900">관리자 로그인</CardTitle>
+                <CardDescription className="text-xs md:text-lg">관리자 계정으로 로그인하여 시스템에 접근하세요</CardDescription>
             </CardHeader>
 
             <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="space-y-2">
-                    <Label htmlFor="email" className="text-base font-medium">
+                <form onSubmit={handleSubmit} className="space-y-3 md:space-y-6">
+                <div className="space-y-1 md:space-y-2">
+                    <Label htmlFor="email" className="text-xs md:text-base font-medium">
                     관리자 이메일
                     </Label>
                     <Input
@@ -94,13 +84,13 @@ export default function AdminPage() {
                     type="email"
                     placeholder="admin@example.com"
                     required
-                    className="w-full h-12"
+                    className="w-full h-9 md:h-12 text-xs md:text-base"
                     ref={emailRef}
                     />
                 </div>
 
-                <div className="space-y-2">
-                    <Label htmlFor="password" className="text-base font-medium">
+                <div className="space-y-1 md:space-y-2">
+                    <Label htmlFor="password" className="text-xs md:text-base font-medium">
                     비밀번호
                     </Label>
                     <Input
@@ -109,29 +99,21 @@ export default function AdminPage() {
                     type="password"
                     placeholder="관리자 비밀번호를 입력하세요"
                     required
-                    className="w-full h-12"
+                    className="w-full h-9 md:h-12 text-xs md:text-base"
                     ref={passwordRef}
                     />
                 </div>
 
-                <Button type="submit" className="w-full h-12 text-lg">
+                <Button type="submit" className="w-full h-9 md:h-12 text-base md:text-lg">
                     관리자 로그인
                 </Button>
-                {error && <div className="text-red-500 text-center mt-2">{error}</div>}
+                {error && <div className="text-xs md:text-base text-red-500 text-center mt-2">{error}</div>}
                 </form>
-
-                <div className="mt-6 text-center">
-                <p className="text-base text-gray-600">
-                    관리자 계정이 없으시거나 문제가 있으시면
-                    <br />
-                    시스템 관리자에게 문의하세요.
-                </p>
-                </div>
             </CardContent>
             </Card>
 
             {/* 추가 보안 안내 */}
-            <div className="text-center text-sm text-gray-500">
+            <div className="text-center text-xs md:text-sm text-gray-500">
             <p>이 페이지는 보안이 적용된 관리자 전용 영역입니다.</p>
             <p>무단 접근 시도는 기록되며 법적 조치를 받을 수 있습니다.</p>
             </div>
