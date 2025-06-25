@@ -7,8 +7,8 @@ import { CornerUpLeft } from "lucide-react"
 
 export default function MyPage() {
   return (
-    <div className="min-h-screen bg-gray-50 pt-16 md:pt-24 pb-8 md:pb-12">
-      <div className="w-full max-w-3xl mx-auto px-2 md:px-4 overflow-x-auto">
+    <div className="min-h-screen bg-gray-50 pt-16 md:pt-24 pb-8 md:pb-12 w-full max-w-full overflow-x-hidden">
+      <div className="w-full max-w-3xl mx-auto px-2 md:px-4 overflow-x-visible">
         <div className="flex items-center gap-1 md:gap-2 mb-4 md:mb-8">
           <button
             type="button"
