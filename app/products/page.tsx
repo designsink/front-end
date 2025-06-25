@@ -126,13 +126,13 @@ export default function ProductsPage() {
                   className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer"
                   onClick={() => setSelectedImageIndex(index)}
                 >
-                  <div className="relative x-[1100] h-[825px] overflow-hidden">
+                  <div className="relative w-full aspect-[1100/825] overflow-hidden">
                     <Image
                       src={`https://dsink.kr/images/${product.path}`}
                       alt={`제품 이미지 ${product.productId}`}
                       fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-110"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      className="object-cover"
+                      sizes="100vw"
                       priority={index < 3}
                     />
                   </div>
