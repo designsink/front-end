@@ -25,7 +25,7 @@ export function Header() {
 
   return (
     <>
-      <MobileMenu isOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
+      <MobileMenu isOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
 
       <header className="fixed top-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-md shadow-sm">
         <div className="container mx-auto px-4 py-1 flex justify-between items-center">
