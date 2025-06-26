@@ -56,7 +56,18 @@ export function CategorySection({ categories }: CategorySectionProps) {
                 </div>
                 <div className="p-3 md:p-6">
                   <h3 className="text-base md:text-xl font-bold mb-1 md:mb-2">{category.title}</h3>
-                  <p className="text-xs md:text-base text-gray-600 mb-2 md:mb-4">{category.description}</p>
+                  <p className="text-xs md:text-base text-gray-600 mb-2 md:mb-4 min-h-[48px]">
+                    {category.title === "맞춤가구"
+                      ? category.description
+                      : (() => {
+                          const idx = category.description.indexOf("맞춤형");
+                          if (idx === -1) return category.description;
+                          return <>
+                            {category.description.slice(0, idx)}<br />{category.description.slice(idx)}
+                          </>;
+                        })()
+                    }
+                  </p>
                   <span className="text-primary font-medium flex items-center text-sm md:text-base">
                     자세히 보기 <ChevronRight size={16} className="ml-1" />
                   </span>
