@@ -69,7 +69,7 @@ export default function ProductsPage() {
         <div className="container mx-auto px-4">
           <div className="text-center">
             <h1 className="text-2xl md:text-4xl font-bold mb-2 md:mb-4">제품</h1>
-            <p className="text-sm md:text-base text-gray-600 max-w-2xl mx-auto">디자인 씽크의 다양한 맞춤형 가구를 만나보세요.</p>
+            <p className="text-sm md:text-base text-gray-600 max-w-4xl mx-auto">디자인 씽크의 다양한 맞춤형 가구를 만나보세요.</p>
           </div>
         </div>
       </section>
@@ -123,7 +123,7 @@ export default function ProductsPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer max-w-lg w-full mx-auto"
+                  className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300 cursor-pointer max-w-4xl w-full mx-auto"
                   onClick={() => setSelectedImageIndex(index)}
                 >
                   <div className="relative w-full aspect-[16/9] overflow-hidden">
