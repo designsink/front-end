@@ -34,7 +34,7 @@ export default function MyPage() {
           <ProductUploadForm onUploaded={handleProductUploaded} />
         </section>
         <section>
-          <h2 className="text-base md:text-xl font-semibold mb-2 md:mb-4">상품 삭제</h2>
+          <h2 className="text-base md:text-xl font-semibold mb-2 md:mb-4">상품 수정/삭제</h2>
           <ProductListWithDelete ref={productListRef} />
         </section>
       </div>
