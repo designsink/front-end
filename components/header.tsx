@@ -31,7 +31,7 @@ export function Header() {
         <div className="container mx-auto px-4 py-1 flex justify-between items-center">
           <Link href="/">
             <Image
-              src="/Logo-m.png"
+              src="/Logo-v3.png"
               alt="디자인 씽크 로고"
               width={200}
               height={64}
