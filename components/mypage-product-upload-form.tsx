@@ -10,24 +10,24 @@ const CATEGORY_OPTIONS = [
 ]
 
 export default function ProductUploadForm({ onUploaded }: { onUploaded?: () => void }) {
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
-  const [file, setFile] = useState<File | null>(null)
+  const [selectedCategory, setSelectedCategory] = useState<string>("")
+  const [files, setFiles] = useState<File[]>([])
   const [message, setMessage] = useState<string | null>(null)
 
   const handleCategoryChange = (value: string) => {
-    setSelectedCategories([value])
+    setSelectedCategory(value)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage(null);
-    if (!file || selectedCategories.length === 0) {
+    if (files.length === 0 || !selectedCategory) {
       setMessage("카테고리와 이미지를 모두 선택해 주세요.");
       return;
     }
     const formData = new FormData();
-    formData.append("categories", selectedCategories[0]);
-    formData.append("file", file);
+    formData.append("categories", selectedCategory);
+    files.forEach(file => formData.append("file", file));
     const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
     try {
       const res = await fetch("https://dsink.kr/api/products", {
@@ -40,8 +40,8 @@ export default function ProductUploadForm({ onUploaded }: { onUploaded?: () => v
       });
       if (!res.ok) throw new Error("등록 실패");
       setMessage("등록되었습니다.");
-      setFile(null);
-      setSelectedCategories([]);
+      setFiles([]);
+      setSelectedCategory("");
       if (onUploaded) onUploaded();
     } catch (err) {
       setMessage("상품 등록 실패");
@@ -59,7 +59,7 @@ export default function ProductUploadForm({ onUploaded }: { onUploaded?: () => v
                 type="radio"
                 name="category"
                 value={cat.value}
-                checked={selectedCategories[0] === cat.value}
+                checked={selectedCategory === cat.value}
                 onChange={() => handleCategoryChange(cat.value)}
               />
               {cat.label}
@@ -72,9 +72,16 @@ export default function ProductUploadForm({ onUploaded }: { onUploaded?: () => v
         <input
           type="file"
           accept="image/*"
-          onChange={e => setFile(e.target.files?.[0] || null)}
+          multiple
+          onChange={e => setFiles(e.target.files ? Array.from(e.target.files) : [])}
         />
-        {file && <p className="mt-2 text-sm text-gray-600">선택된 파일: {file.name}</p>}
+        {files.length > 0 && (
+          <ul className="mt-2 text-sm text-gray-600 list-disc list-inside">
+            {files.map((file, idx) => (
+              <li key={idx}>{file.name}</li>
+            ))}
+          </ul>
+        )}
       </div>
       <button type="submit" className="w-full bg-primary text-white py-2 rounded mt-4">등록</button>
       {message && <div className="text-green-600 text-center mt-2">{message}</div>}
