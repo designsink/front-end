@@ -116,17 +116,17 @@ export default function ProductsPage() {
               ))}
             </div>
           ) : products.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-1 gap-8">
+            <div className="grid grid-cols-1 gap-8">
               {products.map((product, index) => (
                 <motion.div
                   key={product.productId}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer"
+                  className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer max-w-md w-full mx-auto"
                   onClick={() => setSelectedImageIndex(index)}
                 >
-                  <div className="relative w-full aspect-[1100/825] overflow-hidden">
+                  <div className="relative w-full aspect-[16/9] overflow-hidden">
                     <Image
                       src={`https://dsink.kr/images/${product.path}`}
                       alt={`제품 이미지 ${product.productId}`}

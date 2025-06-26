@@ -14,12 +14,21 @@ import { redirect } from "next/navigation"
 export default function Home() {
   const [mounted, setMounted] = useState(false)
   const [mainData, setMainData] = useState<any>(null)
+  const [mainBannerImages, setMainBannerImages] = useState<string[]>([])
 
   useEffect(() => {
     setMounted(true)
     fetch("https://dsink.kr/api/main-page/1")
       .then(res => res.json())
       .then(setMainData)
+    // MAIN 카테고리 상품 이미지 fetch
+    fetch("https://dsink.kr/api/products?category=MAIN")
+      .then(res => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setMainBannerImages(data.map((item) => `https://dsink.kr/images/${item.path}`))
+        }
+      })
   }, [])
 
   useEffect(() => {
@@ -33,21 +42,13 @@ export default function Home() {
 
   if (!mounted || !mainData) return null
 
-  // mainData에서 이미지 경로 추출
+  // 카테고리별 이미지 (기존 방식)
   const categoryImages = [
     mainData.sinkPath,
     mainData.fridgeCabinetPath,
     mainData.builtInClosetPath,
     mainData.customFurniturePath,
   ]
-
-  // HeroSection용 이미지 배열 (null/빈 값 제거, 도메인 붙이기)
-  const heroImages = categoryImages
-    .filter(Boolean)
-    .map(img => `https://dsink.kr/images/${img}`)
-  const heroImagesProp = heroImages.length > 0 ? heroImages : undefined
-
-  // 이미지 경로가 있으면 도메인 붙이기, 없으면 placeholder
   const categoriesWithApiImages = defaultCategories.map((cat, idx) => ({
     ...cat,
     image: categoryImages[idx]
@@ -63,7 +64,7 @@ export default function Home() {
         description={mainData.description}
         address={mainData.address}
         phone={mainData.phone}
-        images={heroImagesProp}
+        images={mainBannerImages.length > 0 ? mainBannerImages : undefined}
       />
       <CategorySection categories={categoriesWithApiImages} />
       <div id="directions">
