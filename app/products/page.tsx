@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { useSearchParams } from "next/navigation"
 import Image from "next/image"
 import { motion } from "framer-motion"
@@ -27,9 +27,14 @@ interface Product {
 export default function ProductsPage() {
   const [selectedCategory, setSelectedCategory] = useState("전체")
   const [products, setProducts] = useState<Product[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [page, setPage] = useState(0)
+  const [hasNext, setHasNext] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null)
   const searchParams = useSearchParams()
+  const loader = useRef<HTMLDivElement | null>(null)
+  const abortControllerRef = useRef<AbortController | null>(null)
+  const [isResetting, setIsResetting] = useState(false);
 
   useEffect(() => {
     const categoryParam = searchParams.get("category")
@@ -39,26 +44,68 @@ export default function ProductsPage() {
     }
   }, [searchParams])
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      setIsLoading(true)
-      const apiCategory = categoryMap[selectedCategory]
-      const url = `https://dsink.kr/api/products?category=${apiCategory}`
-      
+  const fetchProducts = useCallback(
+    async (category: string, pageNum: number, signal?: AbortSignal) => {
+      setIsLoading(true);
+      const apiCategory = categoryMap[category];
+      const url = `https://dsink.kr/api/products?category=${apiCategory}&page=${pageNum}&size=10`;
       try {
-        const res = await fetch(url)
-        const data = await res.json()
-        setProducts(data)
-      } catch (error) {
-        console.error("Failed to fetch products:", error)
-        setProducts([])
+        const res = await fetch(url, { signal });
+        const data = await res.json();
+        // 최신 category/page가 아니면 무시
+        if (category !== selectedCategory || pageNum !== page) return;
+        setProducts((prev: Product[]) => {
+          const ids = new Set(prev.map((p: Product) => p.productId));
+          const newProducts = (data.products || []).filter((p: Product) => !ids.has(p.productId));
+          return [...prev, ...newProducts];
+        });
+        setHasNext(data.hasNext);
+      } catch (error: any) {
+        if (error.name === 'AbortError') return;
+        setHasNext(false);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    },
+    [selectedCategory, page]
+  );
 
-    fetchProducts()
+  useEffect(() => {
+    // 카테고리 변경 시 이전 요청 취소
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    abortControllerRef.current = new AbortController();
+    setIsResetting(true);
+    setProducts([])
+    setPage(0)
+    setHasNext(true)
+    // fetchProducts 호출하지 않음!
   }, [selectedCategory])
+
+  useEffect(() => {
+    fetchProducts(selectedCategory, page, abortControllerRef.current?.signal)
+      .then(() => {
+        if (page === 0) setIsResetting(false);
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, selectedCategory]);
+
+  useEffect(() => {
+    if (!hasNext || isLoading) return;
+    const observer = new window.IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting && !isLoading) {
+          setPage(prev => prev + 1);
+        }
+      },
+      { threshold: 1 }
+    );
+    if (loader.current) observer.observe(loader.current);
+    return () => {
+      if (loader.current) observer.unobserve(loader.current);
+    };
+  }, [hasNext, isLoading]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -109,11 +156,14 @@ export default function ProductsPage() {
       {/* 제품 그리드 */}
       <section className="py-12">
         <div className="container mx-auto px-4">
-          {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-1 gap-8">
-              {[...Array(3)].map((_, i) => (
-                <Skeleton key={i} className="h-[825px] w-full rounded-lg" />
-              ))}
+          {/* 초기화 중에는 무조건 로딩 메시지 */}
+          {isResetting ? (
+            <div className="flex justify-center items-center min-h-[400px]">
+              <span className="text-gray-500 text-lg">로딩 중...</span>
+            </div>
+          ) : isLoading && products.length === 0 ? (
+            <div className="flex justify-center items-center min-h-[400px]">
+              <span className="text-gray-500 text-lg">로딩 중...</span>
             </div>
           ) : products.length > 0 ? (
             <div className="grid grid-cols-1 gap-8">
@@ -144,6 +194,8 @@ export default function ProductsPage() {
               <p className="text-gray-500 text-lg">아직 등록된 사진이 없습니다.</p>
             </div>
           )}
+          {hasNext && !isLoading && !isResetting && <div ref={loader} style={{ height: 40 }} />}
+          {isLoading && products.length > 0 && <div className="text-center py-4">로딩 중...</div>}
         </div>
       </section>
 

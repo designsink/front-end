@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 
 const INIT = {
   title: "",
@@ -195,19 +195,46 @@ function MainBannerUploadForm({ onUploaded }: { onUploaded?: () => void }) {
 // --- 메인 베너 이미지 목록 + 삭제 ---
 function MainBannerListWithDelete() {
   const [banners, setBanners] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
+  const [page, setPage] = useState(0);
+  const [hasNext, setHasNext] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null)
+  const loader = useRef<HTMLDivElement | null>(null);
 
-  const fetchBanners = () => {
-    setLoading(true)
-    fetch("https://dsink.kr/api/products?category=MAIN")
-      .then(res => res.json())
-      .then(data => setBanners(data))
-      .catch(() => setBanners([]))
-      .finally(() => setLoading(false))
+  const fetchBanners = async (pageNum: number) => {
+    setIsLoading(true);
+    try {
+      const res = await fetch(`https://dsink.kr/api/products?category=MAIN`);
+      const data = await res.json();
+      const newBanners = Array.isArray(data.products) ? data.products : [];
+      setBanners(prev => pageNum === 0 ? newBanners : [...prev, ...newBanners]);
+      setHasNext(data.hasNext);
+    } catch {
+      setHasNext(false);
+    } finally {
+      setIsLoading(false);
+    }
   }
 
-  useEffect(() => { fetchBanners() }, [])
+  useEffect(() => {
+    fetchBanners(page);
+  }, [page]);
+
+  useEffect(() => {
+    if (!hasNext || isLoading) return;
+    const observer = new window.IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting && !isLoading) {
+          setPage(prev => prev + 1);
+        }
+      },
+      { threshold: 1 }
+    );
+    if (loader.current) observer.observe(loader.current);
+    return () => {
+      if (loader.current) observer.unobserve(loader.current);
+    };
+  }, [hasNext, isLoading]);
 
   const handleDelete = async (productId: number) => {
     setMessage(null)
@@ -220,7 +247,10 @@ function MainBannerListWithDelete() {
       })
       if (!res.ok) throw new Error("삭제 실패")
       setMessage("삭제되었습니다.")
-      fetchBanners()
+      // 삭제 후 첫 페이지부터 다시 불러오기
+      setBanners([]);
+      setPage(0);
+      setHasNext(true);
     } catch {
       setMessage("삭제 실패")
     }
@@ -229,13 +259,13 @@ function MainBannerListWithDelete() {
   return (
     <div className="mt-6">
       <h3 className="font-bold mb-2">등록된 메인 베너 이미지</h3>
-      {loading ? (
+      {isLoading && banners.length === 0 ? (
         <div>불러오는 중...</div>
-      ) : banners.length === 0 ? (
+      ) : Array.isArray(banners) && banners.length === 0 ? (
         <div className="text-gray-500">등록된 이미지가 없습니다.</div>
       ) : (
         <div className="flex flex-wrap gap-4">
-          {banners.map(banner => (
+          {Array.isArray(banners) && banners.map(banner => (
             <div key={banner.productId} className="relative w-40 h-24">
               <img
                 src={`https://dsink.kr/images/${banner.path}`}
@@ -252,6 +282,7 @@ function MainBannerListWithDelete() {
           ))}
         </div>
       )}
+      {hasNext && !isLoading && <div ref={loader} style={{ height: 40 }} />}
       {message && <div className="text-green-600 mt-2">{message}</div>}
     </div>
   )
