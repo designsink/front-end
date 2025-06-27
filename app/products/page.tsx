@@ -97,7 +97,8 @@ export default function ProductsPage() {
   }, [page, selectedCategory]);
 
   useEffect(() => {
-    if (!hasNext || isLoading) return;
+    // 첫 페이지 로딩 중(products.length === 0)에는 observer 등록하지 않음
+    if (!hasNext || isLoading || products.length === 0) return;
     const observer = new window.IntersectionObserver(
       entries => {
         if (entries[0].isIntersecting && !isLoading) {
@@ -110,7 +111,7 @@ export default function ProductsPage() {
     return () => {
       if (loader.current) observer.unobserve(loader.current);
     };
-  }, [hasNext, isLoading]);
+  }, [hasNext, isLoading, products.length]);
 
   return (
     <div className="min-h-screen bg-gray-50">
