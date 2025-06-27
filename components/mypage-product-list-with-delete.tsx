@@ -97,18 +97,19 @@ const ProductListWithDelete = forwardRef(function ProductListWithDelete(props, r
   }
 
   // 최신 selectedCategory/page만 반영하는 fetchProducts
-  const fetchProducts = async (category: string, _pageNum: number, signal?: AbortSignal) => {
+  const fetchProducts = async (category: string, pageNum: number, signal?: AbortSignal) => {
     setIsLoading(true);
-    let url = `https://dsink.kr/api/products?page=0&size=10`;
+    let url = `https://dsink.kr/api/products?page=${pageNum}&size=10`;
     if (category) {
       url += `&category=${encodeURIComponent(category)}`;
     }
     try {
       const res = await fetch(url, { signal });
       const data = await res.json();
-      // 최신 selectedCategory/page가 아니면 무시
-      if (category !== selectedCategory) return;
-      setProducts(data.products || []);
+      if (category !== selectedCategory || pageNum !== page) return;
+      setProducts(prev =>
+        pageNum === 0 ? (data.products || []) : [...prev, ...(data.products || [])]
+      );
       setHasNext(data.hasNext);
     } catch (error: any) {
       if (error.name === 'AbortError') return;
