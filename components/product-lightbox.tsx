@@ -92,6 +92,18 @@ export function ProductLightbox({ products, startIndex, onClose, categoryName }:
     img.src = imageUrl
   }
 
+  // 썸네일 스크롤 보정 (currentIndex가 바뀔 때 + Lightbox가 처음 열릴 때)
+  useEffect(() => {
+    setTimeout(() => {
+      if (!thumbnailContainerRef.current) return;
+      const activeThumbnail = thumbnailContainerRef.current.children[currentIndex] as HTMLDivElement | undefined;
+      if (activeThumbnail && typeof activeThumbnail.scrollIntoView === 'function') {
+        activeThumbnail.scrollIntoView({ behavior: "auto", block: "nearest", inline: "center" });
+      }
+    }, 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentIndex, products.length]);
+
   return (
     <Dialog open={true} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="p-0 m-0 bg-white max-w-full w-full h-full border-none flex flex-col items-center justify-between">
