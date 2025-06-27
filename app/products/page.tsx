@@ -34,6 +34,7 @@ export default function ProductsPage() {
   const searchParams = useSearchParams()
   const abortControllerRef = useRef<AbortController | null>(null)
   const [isResetting, setIsResetting] = useState(false);
+  const loader = useRef<HTMLDivElement | null>(null);
 
   // 이전 카테고리 추적용 ref
   const prevCategoryRef = useRef(selectedCategory);
@@ -94,6 +95,22 @@ export default function ProductsPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, selectedCategory]);
+
+  useEffect(() => {
+    if (!hasNext || isLoading) return;
+    const observer = new window.IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting && !isLoading) {
+          setPage(prev => prev + 1);
+        }
+      },
+      { threshold: 1 }
+    );
+    if (loader.current) observer.observe(loader.current);
+    return () => {
+      if (loader.current) observer.unobserve(loader.current);
+    };
+  }, [hasNext, isLoading]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -185,6 +202,7 @@ export default function ProductsPage() {
               <span className="text-gray-500 text-lg">제품이 없습니다.</span>
             </div>
           )}
+          {hasNext && !isLoading && <div ref={loader} style={{ height: 40 }} />}
         </div>
       </section>
 
