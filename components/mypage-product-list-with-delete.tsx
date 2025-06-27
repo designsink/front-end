@@ -31,7 +31,7 @@ interface Product {
 }
 
 // SortableProduct 컴포넌트
-function SortableProduct({ product, idx, onClickImg, onDelete }: any) {
+function SortableProduct({ product, idx, onClickImg, onDelete, onExpand }: any) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: product.productId })
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -55,8 +55,22 @@ function SortableProduct({ product, idx, onClickImg, onDelete }: any) {
       <button
         className="absolute top-2 right-2 bg-red-500 text-white rounded px-2 py-1 text-xs opacity-80 group-hover:opacity-100 transition"
         onClick={() => onDelete(product.productId)}
+        onPointerDown={e => e.stopPropagation()}
+        onMouseDown={e => e.stopPropagation()}
       >
         삭제
+      </button>
+      <button
+        className="absolute top-2 right-16 bg-white text-gray-800 border border-gray-300 rounded px-2 py-1 text-xs opacity-80 group-hover:opacity-100 transition shadow"
+        style={{ right: 48 }}
+        onClick={e => {
+          e.stopPropagation();
+          onExpand(product.productId);
+        }}
+        onPointerDown={e => e.stopPropagation()}
+        onMouseDown={e => e.stopPropagation()}
+      >
+        확대
       </button>
     </div>
   )
@@ -173,6 +187,21 @@ const ProductListWithDelete = forwardRef(function ProductListWithDelete(props, r
     setShowModal(true);
   };
 
+  const handleExpand = async (productId: number) => {
+    try {
+      const res = await fetch(`https://dsink.kr/api/products/${productId}`);
+      const data = await res.json();
+      if (data && data.path) {
+        setSelectedProduct(data);
+        setShowModal(true);
+      } else {
+        alert('상세 이미지 정보를 불러올 수 없습니다.');
+      }
+    } catch {
+      alert('상세 이미지 정보를 불러올 수 없습니다.');
+    }
+  };
+
   useImperativeHandle(ref, () => ({
     refetch: () => fetchProducts(selectedCategory, 0, abortControllerRef.current?.signal)
   }))
@@ -216,6 +245,7 @@ const ProductListWithDelete = forwardRef(function ProductListWithDelete(props, r
                   idx={idx}
                   onClickImg={handleClickImg}
                   onDelete={handleDelete}
+                  onExpand={handleExpand}
                 />
               ))}
             </div>
