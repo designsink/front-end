@@ -50,7 +50,7 @@ function SortableProduct({ product, idx, onClickImg, onDelete }: any) {
         src={`https://dsink.kr/images/${product.path}`}
         alt={`상품 이미지 ${product.productId}`}
         className="w-full h-48 object-cover rounded cursor-pointer"
-        onClick={() => onClickImg(idx)}
+        onClick={() => onClickImg(product.productId)}
       />
       <button
         className="absolute top-2 right-2 bg-red-500 text-white rounded px-2 py-1 text-xs opacity-80 group-hover:opacity-100 transition"
@@ -74,6 +74,8 @@ const ProductListWithDelete = forwardRef(function ProductListWithDelete(props, r
   const abortControllerRef = useRef<AbortController | null>(null);
   const sensors = useSensors(useSensor(PointerSensor));
   const loader = useRef<HTMLDivElement | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [showModal, setShowModal] = useState(false);
 
   const getCategoryName = (value: string) => {
     const found = CATEGORY_OPTIONS.find((c) => c.value === value)
@@ -163,6 +165,14 @@ const ProductListWithDelete = forwardRef(function ProductListWithDelete(props, r
     }
   }
 
+  // 썸네일 클릭 시 상세 API 호출
+  const handleClickImg = async (productId: number) => {
+    const res = await fetch(`https://dsink.kr/api/products/${productId}`);
+    const data = await res.json();
+    setSelectedProduct(data);
+    setShowModal(true);
+  };
+
   useImperativeHandle(ref, () => ({
     refetch: () => fetchProducts(selectedCategory, 0, abortControllerRef.current?.signal)
   }))
@@ -204,7 +214,7 @@ const ProductListWithDelete = forwardRef(function ProductListWithDelete(props, r
                   key={product.productId}
                   product={product}
                   idx={idx}
-                  onClickImg={setLightboxIndex}
+                  onClickImg={handleClickImg}
                   onDelete={handleDelete}
                 />
               ))}
@@ -213,13 +223,20 @@ const ProductListWithDelete = forwardRef(function ProductListWithDelete(props, r
         </DndContext>
       )}
       {message && <div className={`text-center mt-4 ${message.includes("성공") || message.includes("삭제되었습니다") ? "text-green-600" : "text-red-600"}`}>{message}</div>}
-      {lightboxIndex !== null && (
-        <ProductLightbox
-          products={products}
-          startIndex={lightboxIndex}
-          onClose={() => setLightboxIndex(null)}
-          categoryName={getCategoryName(selectedCategory)}
-        />
+      {showModal && selectedProduct && (
+        <div
+          style={{
+            position: 'fixed', left: 0, top: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.7)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center'
+          }}
+          onClick={() => setShowModal(false)}
+        >
+          <img
+            src={`https://dsink.kr/images/${selectedProduct.path}`}
+            alt="상세 이미지"
+            style={{ maxHeight: '80vh', maxWidth: '90vw', borderRadius: 8, background: '#fff', padding: 8 }}
+            onClick={e => e.stopPropagation()}
+          />
+        </div>
       )}
       {hasNext && !isLoading && <div ref={loader} style={{ height: 40 }} />}
     </div>
