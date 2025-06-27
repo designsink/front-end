@@ -35,6 +35,7 @@ export default function ProductsPage() {
   const abortControllerRef = useRef<AbortController | null>(null)
   const [isResetting, setIsResetting] = useState(false);
   const loader = useRef<HTMLDivElement | null>(null);
+  const [showScrollTop, setShowScrollTop] = useState(false);
 
   // 이전 카테고리 추적용 ref
   const prevCategoryRef = useRef(selectedCategory);
@@ -112,6 +113,18 @@ export default function ProductsPage() {
       if (loader.current) observer.unobserve(loader.current);
     };
   }, [hasNext, isLoading, products.length]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 300);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const handleScrollTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -208,6 +221,15 @@ export default function ProductsPage() {
       </section>
 
       <Footer />
+      {showScrollTop && (
+        <button
+          onClick={handleScrollTop}
+          className="fixed bottom-8 right-8 z-50 bg-primary text-white rounded-full shadow-lg p-4 hover:bg-primary/90 transition-all"
+          aria-label="맨 위로 이동"
+        >
+          ↑ 맨 위로
+        </button>
+      )}
     </div>
   )
 }
