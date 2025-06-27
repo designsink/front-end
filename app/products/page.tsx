@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef, useCallback } from "react"
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
 import Image from "next/image"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
@@ -71,23 +71,26 @@ export default function ProductsPage() {
   );
 
   useEffect(() => {
-    // 카테고리 변경 시 이전 요청 취소
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
     abortControllerRef.current = new AbortController();
     setIsResetting(true);
-    setProducts([])
-    setPage(0)
-    setHasNext(true)
-    // fetchProducts 호출하지 않음!
-  }, [selectedCategory])
+    setProducts([]);
+    setPage(0);
+    setHasNext(true);
+  }, [selectedCategory, searchParams]);
 
+  // page, selectedCategory가 바뀔 때마다 fetchProducts 호출
   useEffect(() => {
-    fetchProducts(selectedCategory, page, abortControllerRef.current?.signal)
-      .then(() => {
-        if (page === 0) setIsResetting(false);
+    if (page === 0 && products.length === 0) {
+      // 첫 페이지, 비어있을 때만 fetchProducts
+      fetchProducts(selectedCategory, 0, abortControllerRef.current?.signal).then(() => {
+        setIsResetting(false);
       });
+    } else if (page > 0) {
+      fetchProducts(selectedCategory, page, abortControllerRef.current?.signal);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, selectedCategory]);
 
@@ -106,6 +109,18 @@ export default function ProductsPage() {
       if (loader.current) observer.unobserve(loader.current);
     };
   }, [hasNext, isLoading]);
+
+  // 뒤로가기 등으로 돌아왔을 때, 첫 페이지만 있고 hasNext가 true면 setPage(1) 트리거
+  useEffect(() => {
+    if (
+      products.length > 0 &&
+      hasNext &&
+      !isLoading &&
+      page === 0
+    ) {
+      setPage(1);
+    }
+  }, [products.length, hasNext, isLoading, page]);
 
   return (
     <div className="min-h-screen bg-gray-50">
