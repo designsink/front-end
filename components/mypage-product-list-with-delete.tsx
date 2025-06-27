@@ -174,6 +174,9 @@ const ProductListWithDelete = forwardRef(function ProductListWithDelete(props, r
       setProducts([]);
       setPage(0);
       setHasNext(true);
+      setIsLoading(true);
+      await fetchProducts(selectedCategory, 0, abortControllerRef.current?.signal);
+      setIsLoading(false);
     } catch (err) {
       setMessage("상품 삭제 실패")
     }
