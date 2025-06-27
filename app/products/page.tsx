@@ -32,9 +32,16 @@ export default function ProductsPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null)
   const searchParams = useSearchParams()
-  const loader = useRef<HTMLDivElement | null>(null)
   const abortControllerRef = useRef<AbortController | null>(null)
   const [isResetting, setIsResetting] = useState(false);
+  const loader = useRef<HTMLDivElement | null>(null);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  // 이전 카테고리 추적용 ref
+  const prevCategoryRef = useRef(selectedCategory);
+  useEffect(() => {
+    prevCategoryRef.current = selectedCategory;
+  }, [selectedCategory]);
 
   useEffect(() => {
     const categoryParam = searchParams.get("category")
@@ -75,19 +82,15 @@ export default function ProductsPage() {
       abortControllerRef.current.abort();
     }
     abortControllerRef.current = new AbortController();
-    setIsResetting(true);
     setProducts([]);
     setPage(0);
     setHasNext(true);
   }, [selectedCategory, searchParams]);
 
-  // page, selectedCategory가 바뀔 때마다 fetchProducts 호출
+  // page가 0이 되는 순간에만 fetchProducts 호출
   useEffect(() => {
-    if (page === 0 && products.length === 0) {
-      // 첫 페이지, 비어있을 때만 fetchProducts
-      fetchProducts(selectedCategory, 0, abortControllerRef.current?.signal).then(() => {
-        setIsResetting(false);
-      });
+    if (products.length === 0 && page === 0) {
+      fetchProducts(selectedCategory, 0, abortControllerRef.current?.signal);
     } else if (page > 0) {
       fetchProducts(selectedCategory, page, abortControllerRef.current?.signal);
     }
@@ -95,7 +98,8 @@ export default function ProductsPage() {
   }, [page, selectedCategory]);
 
   useEffect(() => {
-    if (!hasNext || isLoading) return;
+    // 첫 페이지 로딩 중(products.length === 0)에는 observer 등록하지 않음
+    if (!hasNext || isLoading || products.length === 0) return;
     const observer = new window.IntersectionObserver(
       entries => {
         if (entries[0].isIntersecting && !isLoading) {
@@ -108,19 +112,19 @@ export default function ProductsPage() {
     return () => {
       if (loader.current) observer.unobserve(loader.current);
     };
-  }, [hasNext, isLoading]);
+  }, [hasNext, isLoading, products.length]);
 
-  // 뒤로가기 등으로 돌아왔을 때, 첫 페이지만 있고 hasNext가 true면 setPage(1) 트리거
   useEffect(() => {
-    if (
-      products.length > 0 &&
-      hasNext &&
-      !isLoading &&
-      page === 0
-    ) {
-      setPage(1);
-    }
-  }, [products.length, hasNext, isLoading, page]);
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 300);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const handleScrollTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -144,7 +148,12 @@ export default function ProductsPage() {
               {categories.map((category) => (
                 <button
                   key={category}
-                  onClick={() => setSelectedCategory(category)}
+                  onClick={() => {
+                    setSelectedCategory(category);
+                    setProducts([]);
+                    setPage(0);
+                    setHasNext(true);
+                  }}
                   className={`px-3 md:px-6 py-2 md:py-3 rounded-full border-2 text-sm md:text-base transition-all duration-200 whitespace-nowrap flex items-center gap-1 md:gap-2 ${
                     selectedCategory === category
                       ? "bg-primary border-primary text-white"
@@ -187,43 +196,40 @@ export default function ProductsPage() {
                   key={product.productId}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  transition={{ duration: 0.5, delay: 0 }}
                   className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300 cursor-pointer max-w-4xl w-full mx-auto"
                   onClick={() => setSelectedImageIndex(index)}
                 >
                   <div className="relative w-full aspect-[16/9] overflow-hidden">
                     <Image
                       src={`https://dsink.kr/images/${product.path}`}
-                      alt={`제품 이미지 ${product.productId}`}
+                      alt={`${product.path}`}
                       fill
-                      className="object-cover"
-                      sizes="100vw"
-                      priority={index < 3}
+                      style={{ objectFit: "cover" }}
                     />
                   </div>
                 </motion.div>
               ))}
             </div>
           ) : (
-            <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">아직 등록된 사진이 없습니다.</p>
+            <div className="flex justify-center items-center min-h-[400px]">
+              <span className="text-gray-500 text-lg">제품이 없습니다.</span>
             </div>
           )}
-          {hasNext && !isLoading && !isResetting && <div ref={loader} style={{ height: 40 }} />}
-          {isLoading && products.length > 0 && <div className="text-center py-4">로딩 중...</div>}
+          {hasNext && !isLoading && <div ref={loader} style={{ height: 40 }} />}
         </div>
       </section>
 
-      {selectedImageIndex !== null && (
-        <ProductLightbox
-          products={products}
-          startIndex={selectedImageIndex}
-          onClose={() => setSelectedImageIndex(null)}
-          categoryName={selectedCategory}
-        />
-      )}
-
       <Footer />
+      {showScrollTop && (
+        <button
+          onClick={handleScrollTop}
+          className="fixed bottom-8 right-8 z-50 bg-primary text-white rounded-full shadow-lg p-4 hover:bg-primary/90 transition-all"
+          aria-label="맨 위로 이동"
+        >
+          ↑ 맨 위로
+        </button>
+      )}
     </div>
   )
 }
