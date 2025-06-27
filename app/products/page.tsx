@@ -187,7 +187,7 @@ export default function ProductsPage() {
                   key={product.productId}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  transition={{ duration: 0.5, delay: 0 }}
                   className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300 cursor-pointer max-w-4xl w-full mx-auto"
                   onClick={() => setSelectedImageIndex(index)}
                 >
@@ -198,7 +198,9 @@ export default function ProductsPage() {
                       fill
                       className="object-cover"
                       sizes="100vw"
-                      priority={index < 3}
+                      placeholder="blur"
+                      blurDataURL="/placeholder.svg"
+                      loading="lazy"
                     />
                   </div>
                 </motion.div>
