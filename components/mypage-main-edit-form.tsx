@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from "react"
 
 const INIT = {
   title: "",
@@ -24,6 +24,7 @@ export default function MainPageEditForm() {
   const [saving, setSaving] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const bannerListRef = useRef<{ refetch: () => void }>(null);
 
   useEffect(() => {
     fetch("https://dsink.kr/api/main-page/1")
@@ -81,6 +82,10 @@ export default function MainPageEditForm() {
     }
   }
 
+  const handleBannerUploaded = () => {
+    bannerListRef.current?.refetch();
+  };
+
   if (loading) return <div className="p-6 text-center">불러오는 중...</div>
 
   return (
@@ -132,8 +137,8 @@ export default function MainPageEditForm() {
         {success && <div className="text-green-600 text-center mt-2">저장되었습니다.</div>}
         {error && <div className="text-red-500 text-center mt-2">{error}</div>}
       </form>
-      <MainBannerUploadForm />
-      <MainBannerListWithDelete />
+      <MainBannerUploadForm onUploaded={handleBannerUploaded} />
+      <MainBannerListWithDelete ref={bannerListRef} />
     </>
   )
 }
@@ -193,7 +198,7 @@ function MainBannerUploadForm({ onUploaded }: { onUploaded?: () => void }) {
 }
 
 // --- 메인 베너 이미지 목록 + 삭제 ---
-function MainBannerListWithDelete() {
+const MainBannerListWithDelete = forwardRef(function MainBannerListWithDelete(props, ref) {
   const [banners, setBanners] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [message, setMessage] = useState<string | null>(null)
@@ -214,6 +219,11 @@ function MainBannerListWithDelete() {
   useEffect(() => {
     fetchBanners();
   }, []);
+
+  // refetch 메서드 외부 노출
+  useImperativeHandle(ref, () => ({
+    refetch: fetchBanners
+  }));
 
   const handleDelete = async (productId: number) => {
     setMessage(null)
@@ -261,4 +271,4 @@ function MainBannerListWithDelete() {
       {message && <div className="text-green-600 mt-2">{message}</div>}
     </div>
   )
-} 
+}) 

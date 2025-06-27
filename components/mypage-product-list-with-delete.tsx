@@ -97,19 +97,18 @@ const ProductListWithDelete = forwardRef(function ProductListWithDelete(props, r
   }
 
   // 최신 selectedCategory/page만 반영하는 fetchProducts
-  const fetchProducts = async (category: string, pageNum: number, signal?: AbortSignal) => {
+  const fetchProducts = async (category: string, _pageNum: number, signal?: AbortSignal) => {
     setIsLoading(true);
-    const url = `https://dsink.kr/api/products?category=${category}&page=${pageNum}&size=10`;
+    let url = `https://dsink.kr/api/products?page=0&size=10`;
+    if (category) {
+      url += `&category=${encodeURIComponent(category)}`;
+    }
     try {
       const res = await fetch(url, { signal });
       const data = await res.json();
       // 최신 selectedCategory/page가 아니면 무시
-      if (category !== selectedCategory || pageNum !== page) return;
-      setProducts((prev: Product[]) => {
-        const ids = new Set(prev.map((p: Product) => p.productId));
-        const newProducts = (data.products || []).filter((p: Product) => !ids.has(p.productId));
-        return pageNum === 0 ? newProducts : [...prev, ...newProducts];
-      });
+      if (category !== selectedCategory) return;
+      setProducts(data.products || []);
       setHasNext(data.hasNext);
     } catch (error: any) {
       if (error.name === 'AbortError') return;
@@ -174,6 +173,9 @@ const ProductListWithDelete = forwardRef(function ProductListWithDelete(props, r
       setProducts([]);
       setPage(0);
       setHasNext(true);
+      setIsLoading(true);
+      await fetchProducts(selectedCategory, 0, abortControllerRef.current?.signal);
+      setIsLoading(false);
     } catch (err) {
       setMessage("상품 삭제 실패")
     }
@@ -203,7 +205,11 @@ const ProductListWithDelete = forwardRef(function ProductListWithDelete(props, r
   };
 
   useImperativeHandle(ref, () => ({
-    refetch: () => fetchProducts(selectedCategory, 0, abortControllerRef.current?.signal)
+    refetch: () => {
+      setSelectedCategory("");
+      setPage(0);
+      setHasNext(true);
+    }
   }))
 
   return (
