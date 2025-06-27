@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useImperativeHandle, forwardRef } from "react"
+import { useState, useEffect, useImperativeHandle, forwardRef, useRef } from "react"
 import { ProductLightbox } from "./product-lightbox"
 import {
   DndContext,
@@ -68,25 +68,74 @@ const ProductListWithDelete = forwardRef(function ProductListWithDelete(props, r
   const [loading, setLoading] = useState(true)
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
   const [message, setMessage] = useState<string | null>(null)
+  const [page, setPage] = useState(0);
+  const [hasNext, setHasNext] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
   const sensors = useSensors(useSensor(PointerSensor));
+  const loader = useRef<HTMLDivElement | null>(null);
 
   const getCategoryName = (value: string) => {
     const found = CATEGORY_OPTIONS.find((c) => c.value === value)
     return found ? found.label : "전체"
   }
 
-  const fetchProducts = () => {
-    setLoading(true)
-    fetch(`https://dsink.kr/api/products?category=${selectedCategory}`)
-      .then(res => res.json())
-      .then(data => setProducts(data))
-      .catch(() => setProducts([]))
-      .finally(() => setLoading(false))
+  // 최신 selectedCategory/page만 반영하는 fetchProducts
+  const fetchProducts = async (category: string, pageNum: number, signal?: AbortSignal) => {
+    setIsLoading(true);
+    const url = `https://dsink.kr/api/products?category=${category}&page=${pageNum}&size=10`;
+    try {
+      const res = await fetch(url, { signal });
+      const data = await res.json();
+      // 최신 selectedCategory/page가 아니면 무시
+      if (category !== selectedCategory || pageNum !== page) return;
+      setProducts((prev: Product[]) => {
+        const ids = new Set(prev.map((p: Product) => p.productId));
+        const newProducts = (data.products || []).filter((p: Product) => !ids.has(p.productId));
+        return pageNum === 0 ? newProducts : [...prev, ...newProducts];
+      });
+      setHasNext(data.hasNext);
+    } catch (error: any) {
+      if (error.name === 'AbortError') return;
+      setHasNext(false);
+    } finally {
+      setIsLoading(false);
+    }
   }
 
+  // 카테고리 변경 시 초기화
   useEffect(() => {
-    fetchProducts()
-  }, [selectedCategory])
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    abortControllerRef.current = new AbortController();
+    setProducts([]);
+    setPage(0);
+    setHasNext(true);
+  }, [selectedCategory]);
+
+  // page, selectedCategory가 바뀔 때마다 fetchProducts
+  useEffect(() => {
+    fetchProducts(selectedCategory, page, abortControllerRef.current?.signal);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, selectedCategory]);
+
+  // 무한 스크롤 (옵션, 필요시)
+  useEffect(() => {
+    if (!hasNext || isLoading) return;
+    const observer = new window.IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting && !isLoading) {
+          setPage(prev => prev + 1);
+        }
+      },
+      { threshold: 1 }
+    );
+    if (loader.current) observer.observe(loader.current);
+    return () => {
+      if (loader.current) observer.unobserve(loader.current);
+    };
+  }, [hasNext, isLoading]);
 
   const handleDelete = async (productId: number) => {
     setMessage(null)
@@ -105,14 +154,17 @@ const ProductListWithDelete = forwardRef(function ProductListWithDelete(props, r
       })
       if (!res.ok) throw new Error("삭제 실패")
       setMessage("삭제되었습니다.")
-      fetchProducts()
+      // 삭제 후 첫 페이지부터 다시 불러오기
+      setProducts([]);
+      setPage(0);
+      setHasNext(true);
     } catch (err) {
       setMessage("상품 삭제 실패")
     }
   }
 
   useImperativeHandle(ref, () => ({
-    refetch: fetchProducts
+    refetch: () => fetchProducts(selectedCategory, 0, abortControllerRef.current?.signal)
   }))
 
   return (
@@ -130,7 +182,7 @@ const ProductListWithDelete = forwardRef(function ProductListWithDelete(props, r
           ))}
         </div>
       </div>
-      {loading ? (
+      {isLoading && products.length === 0 ? (
         <div className="text-center py-8">불러오는 중...</div>
       ) : products.length === 0 ? (
         <div className="text-center py-8 text-gray-500">등록된 상품이 없습니다.</div>
@@ -169,6 +221,7 @@ const ProductListWithDelete = forwardRef(function ProductListWithDelete(props, r
           categoryName={getCategoryName(selectedCategory)}
         />
       )}
+      {hasNext && !isLoading && <div ref={loader} style={{ height: 40 }} />}
     </div>
   )
 })
