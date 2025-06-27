@@ -11,6 +11,8 @@ import { categories as defaultCategories } from "@/data/site-data"
 import DirectionsPage from "@/components/direction-page"
 import { redirect } from "next/navigation"
 
+const API_BASE_URL = 'https://dsink.kr/api';
+
 export default function Home() {
   const [mounted, setMounted] = useState(false)
   const [mainData, setMainData] = useState<any>(null)
@@ -18,15 +20,18 @@ export default function Home() {
 
   useEffect(() => {
     setMounted(true)
-    fetch("https://dsink.kr/api/main-page/1")
+    // 메인페이지 정보
+    fetch(`${API_BASE_URL}/main-page/1`)
       .then(res => res.json())
       .then(setMainData)
-    // MAIN 카테고리 상품 이미지 fetch
-    fetch("https://dsink.kr/api/products?category=MAIN")
+    // 메인 배너 이미지
+    fetch(`${API_BASE_URL}/main-page`)
       .then(res => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) {
-          setMainBannerImages(data.map((item) => `https://dsink.kr/images/${item.path}`))
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setMainBannerImages(data.map((item: any) => `https://dsink.kr/images/${item.path}`))
+        } else {
+          setMainBannerImages(["/placeholder.jpg"])
         }
       })
   }, [])
@@ -64,7 +69,7 @@ export default function Home() {
         description={mainData.description}
         address={mainData.address}
         phone={mainData.phone}
-        images={mainBannerImages.length > 0 ? mainBannerImages : undefined}
+        images={mainBannerImages}
       />
       <CategorySection categories={categoriesWithApiImages} />
       <div id="directions">
