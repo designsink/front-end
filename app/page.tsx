@@ -4,12 +4,9 @@ import { useEffect, useState } from "react"
 import { Header } from "@/components/header"
 import { HeroSection } from "@/components/hero-section"
 import { CategorySection } from "@/components/category-section"
-import { FeatureSection } from "@/components/feature-section"
-import { ContactForm } from "@/components/contact-form"
 import { Footer } from "@/components/footer"
 import { categories as defaultCategories } from "@/data/site-data"
 import DirectionsPage from "@/components/direction-page"
-import { redirect } from "next/navigation"
 
 const API_BASE_URL = 'https://dsink.kr/api';
 
@@ -31,7 +28,7 @@ export default function Home() {
         if (Array.isArray(data) && data.length > 0) {
           setMainBannerImages(data.map((item: any) => `https://dsink.kr/images/${item.path}`))
         } else {
-          setMainBannerImages(["/placeholder.jpg"])
+          setMainBannerImages(["/placeholder.svg"])
         }
       })
   }, [])
