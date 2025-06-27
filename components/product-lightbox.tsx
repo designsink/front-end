@@ -21,6 +21,30 @@ interface ProductLightboxProps {
 export function ProductLightbox({ products, startIndex, onClose, categoryName }: ProductLightboxProps) {
   const [currentIndex, setCurrentIndex] = useState(startIndex)
   const thumbnailContainerRef = useRef<HTMLDivElement>(null)
+  const [detail, setDetail] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchDetail = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const productId = products[currentIndex].productId;
+        const url = `https://dsink.kr/api/products/${productId}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (!res.ok || !data.path) throw new Error("상세 정보를 불러올 수 없습니다.");
+        setDetail(data);
+      } catch (err) {
+        setError("상세 정보를 불러올 수 없습니다.");
+        setDetail(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDetail();
+  }, [currentIndex, products]);
 
   const goToPrevious = () => {
     const isFirstSlide = currentIndex === 0
@@ -42,15 +66,6 @@ export function ProductLightbox({ products, startIndex, onClose, categoryName }:
     }
     window.addEventListener("keydown", handleKeyDown)
     return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [currentIndex])
-
-  useEffect(() => {
-    if (thumbnailContainerRef.current) {
-      const activeThumbnail = thumbnailContainerRef.current.children[currentIndex] as HTMLDivElement
-      if (activeThumbnail) {
-        activeThumbnail.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" })
-      }
-    }
   }, [currentIndex])
 
   const currentProduct = products[currentIndex]
@@ -107,14 +122,20 @@ export function ProductLightbox({ products, startIndex, onClose, categoryName }:
             <ArrowLeft size={32} />
           </Button>
 
-          <div className="relative w-[85%] h-[80%] z-10">
-            <Image
-              src={imageUrl}
-              alt={`제품 이미지 ${currentProduct.productId}`}
-              fill
-              className="object-contain"
-              priority
-            />
+          <div className="relative w-[85%] h-[80%] z-10 flex items-center justify-center">
+            {loading ? (
+              <div className="text-gray-500 text-lg flex items-center justify-center w-full h-full">로딩 중...</div>
+            ) : error ? (
+              <div className="text-red-500 text-lg flex items-center justify-center w-full h-full">{error}</div>
+            ) : detail && detail.path ? (
+              <Image
+                src={`https://dsink.kr/images/${detail.path}`}
+                alt={`제품 이미지 ${products[currentIndex].productId}`}
+                fill
+                className="object-contain"
+                priority
+              />
+            ) : null}
           </div>
 
           <Button
@@ -132,7 +153,7 @@ export function ProductLightbox({ products, startIndex, onClose, categoryName }:
             <div ref={thumbnailContainerRef} className="flex items-center gap-2 overflow-x-auto pb-2">
               {products.map((p, index) => (
                 <div
-                  key={p.productId}
+                  key={`${p.productId}-${index}`}
                   className={`relative w-20 h-20 shrink-0 cursor-pointer rounded-md overflow-hidden border-2 ${
                     currentIndex === index ? "border-primary" : "border-gray-300"
                   }`}
