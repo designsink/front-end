@@ -230,6 +230,14 @@ export default function ProductsPage() {
           ↑ 맨 위로
         </button>
       )}
+      {selectedImageIndex !== null && (
+        <ProductLightbox
+          products={products}
+          startIndex={selectedImageIndex}
+          onClose={() => setSelectedImageIndex(null)}
+          categoryName={selectedCategory}
+        />
+      )}
     </div>
   )
 }
