@@ -76,7 +76,8 @@ function SortableProduct({ product, idx, onClickImg, onDelete, onExpand }: any) 
   )
 }
 
-const ProductListWithDelete = forwardRef(function ProductListWithDelete(props, ref) {
+const ProductListWithDelete = forwardRef(function ProductListWithDelete(props: any, ref) {
+  const { onOrderChanged } = props;
   const [selectedCategory, setSelectedCategory] = useState("")
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
@@ -107,9 +108,12 @@ const ProductListWithDelete = forwardRef(function ProductListWithDelete(props, r
       const res = await fetch(url, { signal });
       const data = await res.json();
       if (category !== selectedCategory || pageNum !== page) return;
-      setProducts(prev =>
-        pageNum === 0 ? (data.products || []) : [...prev, ...(data.products || [])]
-      );
+      setProducts(prev => {
+        if (pageNum === 0) return data.products || [];
+        const ids = new Set(prev.map((p: Product) => p.productId));
+        const newUnique = (data.products || []).filter((p: Product) => !ids.has(p.productId));
+        return [...prev, ...newUnique];
+      });
       setHasNext(data.hasNext);
     } catch (error: any) {
       if (error.name === 'AbortError') return;
@@ -210,6 +214,29 @@ const ProductListWithDelete = forwardRef(function ProductListWithDelete(props, r
       setSelectedCategory("");
       setPage(0);
       setHasNext(true);
+    },
+    saveOrder: async () => {
+      const orderList = products.map((p, idx) => ({ id: p.productId, sequence: idx + 1 }));
+      const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+      try {
+        setMessage(null);
+        const res = await fetch(`https://dsink.kr/api/products?category=${encodeURIComponent(selectedCategory)}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            ...(accessToken ? { "Authorization": accessToken } : {}),
+          },
+          body: JSON.stringify(orderList),
+          credentials: "include",
+        });
+        if (!res.ok) throw new Error("순서 수정 실패");
+        setMessage("순서가 성공적으로 수정되었습니다.");
+        if (onOrderChanged) onOrderChanged(false);
+        return true;
+      } catch (err) {
+        setMessage("순서 수정 실패");
+        return false;
+      }
     }
   }))
 
@@ -281,7 +308,7 @@ const ProductListWithDelete = forwardRef(function ProductListWithDelete(props, r
               const newIndex = products.findIndex(p => p.productId === over.id);
               const newProducts = arrayMove(products, oldIndex, newIndex);
               setProducts(newProducts);
-              const orderList = newProducts.map((p, idx) => ({ id: p.productId, sequence: idx + 1 }));
+              if (onOrderChanged) onOrderChanged(true);
             }}
           >
             <SortableContext items={products.map(p => p.productId)} strategy={rectSortingStrategy}>
@@ -301,7 +328,7 @@ const ProductListWithDelete = forwardRef(function ProductListWithDelete(props, r
           </DndContext>
         )
       }
-      {message && <div className={`text-center mt-4 ${message.includes("성공") || message.includes("삭제되었습니다") ? "text-green-600" : "text-red-600"}`}>{message}</div>}
+      {message && <div className={`text-center mt-4 ${message.includes("성공") ? "text-green-600" : "text-red-600"}`}>{message}</div>}
       {showModal && selectedProduct && (
         <div
           style={{
