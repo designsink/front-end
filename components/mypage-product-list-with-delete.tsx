@@ -94,6 +94,8 @@ const ProductListWithDelete = forwardRef(function ProductListWithDelete(props: a
   const loader = useRef<HTMLDivElement | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [showModal, setShowModal] = useState(false);
+  const [originalProducts, setOriginalProducts] = useState<Product[]>([]);
+  const [isOrderChanged, setIsOrderChanged] = useState(false);
 
   const getCategoryName = (value: string) => {
     const found = CATEGORY_OPTIONS.find((c) => c.value === value)
@@ -310,10 +312,13 @@ const ProductListWithDelete = forwardRef(function ProductListWithDelete(props: a
             collisionDetection={closestCenter}
             onDragEnd={({ active, over }) => {
               if (!over || active.id === over.id) return;
+              // 최초 드래그 시 원본 저장
+              if (!isOrderChanged) setOriginalProducts(products);
               const oldIndex = products.findIndex(p => p.productId === active.id);
               const newIndex = products.findIndex(p => p.productId === over.id);
               const newProducts = arrayMove(products, oldIndex, newIndex);
               setProducts(newProducts);
+              setIsOrderChanged(true);
               if (onOrderChanged) onOrderChanged(true);
             }}
           >
@@ -350,6 +355,40 @@ const ProductListWithDelete = forwardRef(function ProductListWithDelete(props: a
         </div>
       )}
       {hasNext && !isLoading && <div ref={loader} style={{ height: 40 }} />}
+      {/* 수정/취소 버튼: 드래그 발생 시에만, 오른쪽 하단에 한 번만 노출 */}
+      {isOrderChanged && products.length > 0 && (
+        <div className="fixed bottom-8 right-8 z-50 flex flex-col gap-2 items-end">
+          <button
+            className="bg-primary text-white rounded-full shadow-lg p-4 hover:bg-primary/90 transition-all text-base md:text-lg"
+            style={{ minWidth: 64 }}
+            onClick={async () => {
+              let ok = true;
+              if (ref && typeof ref === 'object' && (ref as any).current && typeof (ref as any).current.saveOrder === 'function') {
+                ok = await (ref as any).current.saveOrder();
+              }
+              if (ok) {
+                setIsOrderChanged(false);
+                setOriginalProducts(products);
+              } else {
+                setIsOrderChanged(true);
+              }
+            }}
+          >
+            수정
+          </button>
+          <button
+            className="bg-gray-200 text-gray-700 rounded-full shadow-lg p-4 hover:bg-gray-300 transition-all text-base md:text-lg"
+            style={{ minWidth: 64 }}
+            onClick={() => {
+              setProducts(originalProducts);
+              setIsOrderChanged(false);
+              toast({ description: "순서 변경이 취소되었습니다.", variant: "default" });
+            }}
+          >
+            취소
+          </button>
+        </div>
+      )}
     </div>
   )
 })
