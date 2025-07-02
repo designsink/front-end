@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from "react"
+import { useToast } from "@/hooks/use-toast"
 
 const INIT = {
   title: "",
@@ -22,8 +23,7 @@ export default function MainPageEditForm() {
   const [form, setForm] = useState(INIT)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [success, setSuccess] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const { toast } = useToast();
   const bannerListRef = useRef<{ refetch: () => void }>(null);
 
   useEffect(() => {
@@ -48,7 +48,7 @@ export default function MainPageEditForm() {
         setLoading(false)
       })
       .catch(() => {
-        setError("불러오기 실패")
+        toast({ description: "불러오기 실패", variant: "destructive" });
         setLoading(false)
       })
   }, [])
@@ -60,8 +60,6 @@ export default function MainPageEditForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSaving(true)
-    setError(null)
-    setSuccess(false)
     const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
     try {
       const res = await fetch("https://dsink.kr/api/main-page/1", {
@@ -74,9 +72,9 @@ export default function MainPageEditForm() {
         body: JSON.stringify(form),
       })
       if (!res.ok) throw new Error("저장 실패")
-      setSuccess(true)
+      toast({ description: "저장되었습니다.", variant: "default" });
     } catch (err) {
-      setError("저장 실패")
+      toast({ description: "저장 실패", variant: "destructive" });
     } finally {
       setSaving(false)
     }
@@ -134,8 +132,6 @@ export default function MainPageEditForm() {
           </div>
         </div>
         <button type="submit" className="w-full bg-primary text-white py-2 rounded mt-4" disabled={saving}>{saving ? "저장 중..." : "저장"}</button>
-        {success && <div className="text-green-600 text-center mt-2">저장되었습니다.</div>}
-        {error && <div className="text-red-500 text-center mt-2">{error}</div>}
       </form>
       <MainBannerUploadForm onUploaded={handleBannerUploaded} />
       <MainBannerListWithDelete ref={bannerListRef} />
@@ -146,13 +142,12 @@ export default function MainPageEditForm() {
 // --- 메인 베너 이미지 등록 폼 ---
 function MainBannerUploadForm({ onUploaded }: { onUploaded?: () => void }) {
   const [files, setFiles] = useState<File[]>([])
-  const [message, setMessage] = useState<string | null>(null)
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setMessage(null)
     if (files.length === 0) {
-      setMessage("이미지를 선택해 주세요.")
+      toast({ description: "이미지를 선택해 주세요.", variant: "destructive" });
       return
     }
     const formData = new FormData()
@@ -169,11 +164,11 @@ function MainBannerUploadForm({ onUploaded }: { onUploaded?: () => void }) {
         credentials: "include",
       })
       if (!res.ok) throw new Error("등록 실패")
-      setMessage("등록되었습니다.")
+      toast({ description: "등록되었습니다.", variant: "default" });
       setFiles([])
       if (onUploaded) onUploaded()
     } catch {
-      setMessage("등록 실패")
+      toast({ description: "등록 실패", variant: "destructive" });
     }
   }
 
@@ -192,7 +187,6 @@ function MainBannerUploadForm({ onUploaded }: { onUploaded?: () => void }) {
         </ul>
       )}
       <button type="submit" className="w-full bg-primary text-white py-2 rounded mt-4">등록</button>
-      {message && <div className="text-green-600 text-center mt-2">{message}</div>}
     </form>
   )
 }
@@ -201,7 +195,7 @@ function MainBannerUploadForm({ onUploaded }: { onUploaded?: () => void }) {
 const MainBannerListWithDelete = forwardRef(function MainBannerListWithDelete(props, ref) {
   const [banners, setBanners] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const [message, setMessage] = useState<string | null>(null)
+  const { toast } = useToast();
 
   const fetchBanners = async () => {
     setLoading(true);
@@ -226,7 +220,6 @@ const MainBannerListWithDelete = forwardRef(function MainBannerListWithDelete(pr
   }));
 
   const handleDelete = async (productId: number) => {
-    setMessage(null)
     const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
     try {
       const res = await fetch(`https://dsink.kr/api/products/${productId}` , {
@@ -235,10 +228,10 @@ const MainBannerListWithDelete = forwardRef(function MainBannerListWithDelete(pr
         credentials: "include",
       })
       if (!res.ok) throw new Error("삭제 실패")
-      setMessage("삭제되었습니다.")
+      toast({ description: "삭제되었습니다.", variant: "default" });
       fetchBanners();
     } catch {
-      setMessage("삭제 실패")
+      toast({ description: "삭제 실패", variant: "destructive" });
     }
   }
 
@@ -268,7 +261,6 @@ const MainBannerListWithDelete = forwardRef(function MainBannerListWithDelete(pr
           ))}
         </div>
       )}
-      {message && <div className="text-green-600 mt-2">{message}</div>}
     </div>
   )
 }) 

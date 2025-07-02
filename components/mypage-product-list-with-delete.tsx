@@ -16,6 +16,7 @@ import {
   rectSortingStrategy
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
+import { useToast } from "@/hooks/use-toast"
 
 const CATEGORY_OPTIONS = [
   { label: "전체", value: "" },
@@ -28,6 +29,7 @@ const CATEGORY_OPTIONS = [
 interface Product {
   productId: number
   path: string
+  sequence?: number
 }
 
 // SortableProduct 컴포넌트
@@ -76,7 +78,9 @@ function SortableProduct({ product, idx, onClickImg, onDelete, onExpand }: any) 
   )
 }
 
-const ProductListWithDelete = forwardRef(function ProductListWithDelete(props, ref) {
+const ProductListWithDelete = forwardRef(function ProductListWithDelete(props: any, ref) {
+  const { onOrderChanged } = props;
+  const { toast } = useToast();
   const [selectedCategory, setSelectedCategory] = useState("")
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
@@ -107,9 +111,12 @@ const ProductListWithDelete = forwardRef(function ProductListWithDelete(props, r
       const res = await fetch(url, { signal });
       const data = await res.json();
       if (category !== selectedCategory || pageNum !== page) return;
-      setProducts(prev =>
-        pageNum === 0 ? (data.products || []) : [...prev, ...(data.products || [])]
-      );
+      setProducts(prev => {
+        if (pageNum === 0) return data.products || [];
+        const ids = new Set(prev.map((p: Product) => p.productId));
+        const newUnique = (data.products || []).filter((p: Product) => !ids.has(p.productId));
+        return [...prev, ...newUnique];
+      });
       setHasNext(data.hasNext);
     } catch (error: any) {
       if (error.name === 'AbortError') return;
@@ -154,10 +161,9 @@ const ProductListWithDelete = forwardRef(function ProductListWithDelete(props, r
   }, [hasNext, isLoading]);
 
   const handleDelete = async (productId: number) => {
-    setMessage(null)
     const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
     if (!accessToken) {
-      setMessage("로그인이 필요합니다.")
+      toast({ description: "로그인이 필요합니다.", variant: "destructive" });
       return
     }
     try {
@@ -169,7 +175,7 @@ const ProductListWithDelete = forwardRef(function ProductListWithDelete(props, r
         credentials: "include",
       })
       if (!res.ok) throw new Error("삭제 실패")
-      setMessage("삭제되었습니다.")
+      toast({ description: "삭제되었습니다.", variant: "default" });
       // 삭제 후 첫 페이지부터 다시 불러오기
       setProducts([]);
       setPage(0);
@@ -178,7 +184,7 @@ const ProductListWithDelete = forwardRef(function ProductListWithDelete(props, r
       await fetchProducts(selectedCategory, 0, abortControllerRef.current?.signal);
       setIsLoading(false);
     } catch (err) {
-      setMessage("상품 삭제 실패")
+      toast({ description: "상품 삭제 실패", variant: "destructive" });
     }
   }
 
@@ -210,6 +216,33 @@ const ProductListWithDelete = forwardRef(function ProductListWithDelete(props, r
       setSelectedCategory("");
       setPage(0);
       setHasNext(true);
+    },
+    saveOrder: async () => {
+      // 가장 큰 sequence부터 차례로 재할당
+      const maxSequence = products.reduce((max, p) => Math.max(max, p.sequence ?? 0), 0);
+      const orderList = products.map((p, idx) => ({
+        id: p.productId,
+        sequence: maxSequence - idx
+      }));
+      const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+      try {
+        const res = await fetch(`https://dsink.kr/api/products?category=${encodeURIComponent(selectedCategory)}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            ...(accessToken ? { "Authorization": accessToken } : {}),
+          },
+          body: JSON.stringify(orderList),
+          credentials: "include",
+        });
+        if (!res.ok) throw new Error("순서 수정 실패");
+        toast({ description: "수정되었습니다.", variant: "default" });
+        if (onOrderChanged) onOrderChanged(false);
+        return true;
+      } catch (err) {
+        toast({ description: "순서 수정 실패", variant: "destructive" });
+        return false;
+      }
     }
   }))
 
@@ -232,34 +265,75 @@ const ProductListWithDelete = forwardRef(function ProductListWithDelete(props, r
         <div className="text-center py-8">불러오는 중...</div>
       ) : products.length === 0 ? (
         <div className="text-center py-8 text-gray-500">등록된 상품이 없습니다.</div>
-      ) : (
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={({ active, over }) => {
-            if (!over || active.id === over.id) return;
-            const oldIndex = products.findIndex(p => p.productId === active.id);
-            const newIndex = products.findIndex(p => p.productId === over.id);
-            setProducts(arrayMove(products, oldIndex, newIndex));
-          }}
-        >
-          <SortableContext items={products.map(p => p.productId)} strategy={rectSortingStrategy}>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-              {products.map((product, idx) => (
-                <SortableProduct
-                  key={product.productId}
-                  product={product}
-                  idx={idx}
-                  onClickImg={handleClickImg}
-                  onDelete={handleDelete}
-                  onExpand={handleExpand}
+      ) :
+        selectedCategory === "" ? (
+          // 전체 카테고리일 때: 드래그 앤 드롭 없이 일반 그리드
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+            {products.map((product, idx) => (
+              <div
+                key={product.productId}
+                className="relative group bg-white rounded-lg shadow p-2"
+              >
+                <img
+                  src={`https://dsink.kr/images/${product.path}`}
+                  alt={`상품 이미지 ${product.productId}`}
+                  className="w-full h-48 object-cover rounded cursor-pointer"
+                  onClick={() => handleClickImg(product.productId)}
                 />
-              ))}
-            </div>
-          </SortableContext>
-        </DndContext>
-      )}
-      {message && <div className={`text-center mt-4 ${message.includes("성공") || message.includes("삭제되었습니다") ? "text-green-600" : "text-red-600"}`}>{message}</div>}
+                <button
+                  className="absolute top-2 right-2 bg-red-500 text-white rounded px-2 py-1 text-xs opacity-80 group-hover:opacity-100 transition"
+                  onClick={() => handleDelete(product.productId)}
+                  onPointerDown={e => e.stopPropagation()}
+                  onMouseDown={e => e.stopPropagation()}
+                >
+                  삭제
+                </button>
+                <button
+                  className="absolute top-2 right-16 bg-white text-gray-800 border border-gray-300 rounded px-2 py-1 text-xs opacity-80 group-hover:opacity-100 transition shadow"
+                  style={{ right: 48 }}
+                  onClick={e => {
+                    e.stopPropagation();
+                    handleExpand(product.productId);
+                  }}
+                  onPointerDown={e => e.stopPropagation()}
+                  onMouseDown={e => e.stopPropagation()}
+                >
+                  확대
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          // 전체가 아닐 때만 드래그 앤 드롭
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={({ active, over }) => {
+              if (!over || active.id === over.id) return;
+              const oldIndex = products.findIndex(p => p.productId === active.id);
+              const newIndex = products.findIndex(p => p.productId === over.id);
+              const newProducts = arrayMove(products, oldIndex, newIndex);
+              setProducts(newProducts);
+              if (onOrderChanged) onOrderChanged(true);
+            }}
+          >
+            <SortableContext items={products.map(p => p.productId)} strategy={rectSortingStrategy}>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                {products.map((product, idx) => (
+                  <SortableProduct
+                    key={product.productId}
+                    product={product}
+                    idx={idx}
+                    onClickImg={handleClickImg}
+                    onDelete={handleDelete}
+                    onExpand={handleExpand}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
+        )
+      }
       {showModal && selectedProduct && (
         <div
           style={{
