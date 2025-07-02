@@ -46,23 +46,6 @@ export default function MyPage() {
             <ProductListWithDelete ref={productListRef} onOrderChanged={setIsOrderChanged} />
           </section>
         </div>
-        {/* 오른쪽 아래 고정 수정 버튼 */}
-        {isOrderChanged && (
-          <button
-            className="fixed bottom-8 right-8 z-50 bg-primary text-white rounded-full shadow-lg p-4 hover:bg-primary/90 transition-all text-base md:text-lg"
-            style={{ minWidth: 64 }}
-            disabled={orderSaveLoading}
-            onClick={async () => {
-              setOrderSaveLoading(true);
-              setOrderSaveError(null);
-              const ok = await productListRef.current.saveOrder();
-              if (!ok) setOrderSaveError("순서 저장 실패");
-              setOrderSaveLoading(false);
-            }}
-          >
-            {orderSaveLoading ? "저장 중..." : "수정"}
-          </button>
-        )}
       </div>
       <Toaster />
     </>
