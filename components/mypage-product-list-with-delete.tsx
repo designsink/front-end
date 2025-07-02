@@ -161,10 +161,9 @@ const ProductListWithDelete = forwardRef(function ProductListWithDelete(props: a
   }, [hasNext, isLoading]);
 
   const handleDelete = async (productId: number) => {
-    setMessage(null)
     const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
     if (!accessToken) {
-      setMessage("로그인이 필요합니다.")
+      toast({ description: "로그인이 필요합니다.", variant: "destructive" });
       return
     }
     try {
@@ -176,7 +175,7 @@ const ProductListWithDelete = forwardRef(function ProductListWithDelete(props: a
         credentials: "include",
       })
       if (!res.ok) throw new Error("삭제 실패")
-      setMessage("삭제되었습니다.")
+      toast({ description: "삭제되었습니다.", variant: "default" });
       // 삭제 후 첫 페이지부터 다시 불러오기
       setProducts([]);
       setPage(0);
@@ -185,7 +184,7 @@ const ProductListWithDelete = forwardRef(function ProductListWithDelete(props: a
       await fetchProducts(selectedCategory, 0, abortControllerRef.current?.signal);
       setIsLoading(false);
     } catch (err) {
-      setMessage("상품 삭제 실패")
+      toast({ description: "상품 삭제 실패", variant: "destructive" });
     }
   }
 
