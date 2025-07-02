@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useToast } from "@/hooks/use-toast"
 
 const CATEGORY_OPTIONS = [
   { label: "씽크대", value: "SINK" },
@@ -13,6 +14,7 @@ export default function ProductUploadForm({ onUploaded }: { onUploaded?: () => v
   const [selectedCategory, setSelectedCategory] = useState<string>("")
   const [files, setFiles] = useState<File[]>([])
   const [message, setMessage] = useState<string | null>(null)
+  const { toast } = useToast();
 
   const handleCategoryChange = (value: string) => {
     setSelectedCategory(value)
@@ -22,7 +24,7 @@ export default function ProductUploadForm({ onUploaded }: { onUploaded?: () => v
     e.preventDefault();
     setMessage(null);
     if (files.length === 0 || !selectedCategory) {
-      setMessage("카테고리와 이미지를 모두 선택해 주세요.");
+      toast({ description: "카테고리와 이미지를 모두 선택해 주세요.", variant: "destructive" });
       return;
     }
     const formData = new FormData();
@@ -39,12 +41,12 @@ export default function ProductUploadForm({ onUploaded }: { onUploaded?: () => v
         credentials: "include",
       });
       if (!res.ok) throw new Error("등록 실패");
-      setMessage("등록되었습니다.");
+      toast({ description: "등록되었습니다.", variant: "default" });
       setFiles([]);
       setSelectedCategory("");
       if (onUploaded) onUploaded();
     } catch (err) {
-      setMessage("상품 등록 실패");
+      toast({ description: "상품 등록 실패", variant: "destructive" });
     }
   }
 
@@ -84,7 +86,6 @@ export default function ProductUploadForm({ onUploaded }: { onUploaded?: () => v
         )}
       </div>
       <button type="submit" className="w-full bg-primary text-white py-2 rounded mt-4">등록</button>
-      {message && <div className="text-green-600 text-center mt-2">{message}</div>}
     </form>
   )
 } 

@@ -16,6 +16,7 @@ import {
   rectSortingStrategy
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
+import { useToast } from "@/hooks/use-toast"
 
 const CATEGORY_OPTIONS = [
   { label: "전체", value: "" },
@@ -79,6 +80,7 @@ function SortableProduct({ product, idx, onClickImg, onDelete, onExpand }: any) 
 
 const ProductListWithDelete = forwardRef(function ProductListWithDelete(props: any, ref) {
   const { onOrderChanged } = props;
+  const { toast } = useToast();
   const [selectedCategory, setSelectedCategory] = useState("")
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
@@ -225,7 +227,6 @@ const ProductListWithDelete = forwardRef(function ProductListWithDelete(props: a
       }));
       const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
       try {
-        setMessage(null);
         const res = await fetch(`https://dsink.kr/api/products?category=${encodeURIComponent(selectedCategory)}`, {
           method: "PATCH",
           headers: {
@@ -236,11 +237,11 @@ const ProductListWithDelete = forwardRef(function ProductListWithDelete(props: a
           credentials: "include",
         });
         if (!res.ok) throw new Error("순서 수정 실패");
-        setMessage("순서가 성공적으로 수정되었습니다.");
+        toast({ description: "순서가 성공적으로 수정되었습니다.", variant: "default" });
         if (onOrderChanged) onOrderChanged(false);
         return true;
       } catch (err) {
-        setMessage("순서 수정 실패");
+        toast({ description: "순서 수정 실패", variant: "destructive" });
         return false;
       }
     }
@@ -334,7 +335,6 @@ const ProductListWithDelete = forwardRef(function ProductListWithDelete(props: a
           </DndContext>
         )
       }
-      {message && <div className={`text-center mt-4 ${message.includes("성공") ? "text-green-600" : "text-red-600"}`}>{message}</div>}
       {showModal && selectedProduct && (
         <div
           style={{
