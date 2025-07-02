@@ -232,33 +232,75 @@ const ProductListWithDelete = forwardRef(function ProductListWithDelete(props, r
         <div className="text-center py-8">불러오는 중...</div>
       ) : products.length === 0 ? (
         <div className="text-center py-8 text-gray-500">등록된 상품이 없습니다.</div>
-      ) : (
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={({ active, over }) => {
-            if (!over || active.id === over.id) return;
-            const oldIndex = products.findIndex(p => p.productId === active.id);
-            const newIndex = products.findIndex(p => p.productId === over.id);
-            setProducts(arrayMove(products, oldIndex, newIndex));
-          }}
-        >
-          <SortableContext items={products.map(p => p.productId)} strategy={rectSortingStrategy}>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-              {products.map((product, idx) => (
-                <SortableProduct
-                  key={product.productId}
-                  product={product}
-                  idx={idx}
-                  onClickImg={handleClickImg}
-                  onDelete={handleDelete}
-                  onExpand={handleExpand}
+      ) :
+        selectedCategory === "" ? (
+          // 전체 카테고리일 때: 드래그 앤 드롭 없이 일반 그리드
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+            {products.map((product, idx) => (
+              <div
+                key={product.productId}
+                className="relative group bg-white rounded-lg shadow p-2"
+              >
+                <img
+                  src={`https://dsink.kr/images/${product.path}`}
+                  alt={`상품 이미지 ${product.productId}`}
+                  className="w-full h-48 object-cover rounded cursor-pointer"
+                  onClick={() => handleClickImg(product.productId)}
                 />
-              ))}
-            </div>
-          </SortableContext>
-        </DndContext>
-      )}
+                <button
+                  className="absolute top-2 right-2 bg-red-500 text-white rounded px-2 py-1 text-xs opacity-80 group-hover:opacity-100 transition"
+                  onClick={() => handleDelete(product.productId)}
+                  onPointerDown={e => e.stopPropagation()}
+                  onMouseDown={e => e.stopPropagation()}
+                >
+                  삭제
+                </button>
+                <button
+                  className="absolute top-2 right-16 bg-white text-gray-800 border border-gray-300 rounded px-2 py-1 text-xs opacity-80 group-hover:opacity-100 transition shadow"
+                  style={{ right: 48 }}
+                  onClick={e => {
+                    e.stopPropagation();
+                    handleExpand(product.productId);
+                  }}
+                  onPointerDown={e => e.stopPropagation()}
+                  onMouseDown={e => e.stopPropagation()}
+                >
+                  확대
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          // 전체가 아닐 때만 드래그 앤 드롭
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={({ active, over }) => {
+              if (!over || active.id === over.id) return;
+              const oldIndex = products.findIndex(p => p.productId === active.id);
+              const newIndex = products.findIndex(p => p.productId === over.id);
+              const newProducts = arrayMove(products, oldIndex, newIndex);
+              setProducts(newProducts);
+              const orderList = newProducts.map((p, idx) => ({ id: p.productId, sequence: idx + 1 }));
+            }}
+          >
+            <SortableContext items={products.map(p => p.productId)} strategy={rectSortingStrategy}>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                {products.map((product, idx) => (
+                  <SortableProduct
+                    key={product.productId}
+                    product={product}
+                    idx={idx}
+                    onClickImg={handleClickImg}
+                    onDelete={handleDelete}
+                    onExpand={handleExpand}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
+        )
+      }
       {message && <div className={`text-center mt-4 ${message.includes("성공") || message.includes("삭제되었습니다") ? "text-green-600" : "text-red-600"}`}>{message}</div>}
       {showModal && selectedProduct && (
         <div
