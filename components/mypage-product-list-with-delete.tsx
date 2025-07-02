@@ -216,7 +216,7 @@ const ProductListWithDelete = forwardRef(function ProductListWithDelete(props: a
       setHasNext(true);
     },
     saveOrder: async () => {
-      const orderList = products.map((p, idx) => ({ id: p.productId, sequence: idx + 1 }));
+      const orderList = products.map((p, idx) => ({ id: p.productId, sequence: products.length - idx }));
       const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
       try {
         setMessage(null);
