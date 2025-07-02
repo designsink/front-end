@@ -237,7 +237,7 @@ const ProductListWithDelete = forwardRef(function ProductListWithDelete(props: a
           credentials: "include",
         });
         if (!res.ok) throw new Error("순서 수정 실패");
-        toast({ description: "순서가 성공적으로 수정되었습니다.", variant: "default" });
+        toast({ description: "수정되었습니다.", variant: "default" });
         if (onOrderChanged) onOrderChanged(false);
         return true;
       } catch (err) {
