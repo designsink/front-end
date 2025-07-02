@@ -28,6 +28,7 @@ const CATEGORY_OPTIONS = [
 interface Product {
   productId: number
   path: string
+  sequence?: number
 }
 
 // SortableProduct 컴포넌트
@@ -216,7 +217,12 @@ const ProductListWithDelete = forwardRef(function ProductListWithDelete(props: a
       setHasNext(true);
     },
     saveOrder: async () => {
-      const orderList = products.map((p, idx) => ({ id: p.productId, sequence: products.length - idx }));
+      // 가장 큰 sequence부터 차례로 재할당
+      const maxSequence = products.reduce((max, p) => Math.max(max, p.sequence ?? 0), 0);
+      const orderList = products.map((p, idx) => ({
+        id: p.productId,
+        sequence: maxSequence - idx
+      }));
       const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
       try {
         setMessage(null);
